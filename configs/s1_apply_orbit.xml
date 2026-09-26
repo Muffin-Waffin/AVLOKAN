@@ -1,0 +1,30 @@
+<graph id="s1_apply_orbit">
+    <version>1.0</version>
+
+    <node id="ApplyOrbit">
+        <operator>Apply-Orbit-File</operator>
+
+        <sources>
+            <source>${source}</source>
+        </sources>
+
+        <parameters>
+            <orbitType>Sentinel Precise (Auto Download)</orbitType>
+            <polyDegree>3</polyDegree>
+            <continueOnFail>false</continueOnFail>
+        </parameters>
+    </node>
+
+    <node id="Write">
+        <operator>Write</operator>
+
+        <sources>
+            <source>ApplyOrbit</source>
+        </sources>
+
+        <parameters>
+            <file>${target}</file>
+            <formatName>BEAM-DIMAP</formatName>
+        </parameters>
+    </node>
+</graph>

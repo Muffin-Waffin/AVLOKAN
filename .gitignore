@@ -1,0 +1,188 @@
+# ============================================================
+# AVLOKAN - Git Ignore
+# ============================================================
+
+# ------------------------------------------------------------
+# Python
+# ------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# ------------------------------------------------------------
+# Packaging / Build artifacts
+# ------------------------------------------------------------
+*.egg-info/
+build/
+dist/
+.eggs/
+
+# ------------------------------------------------------------
+# Environment / Secrets
+# ------------------------------------------------------------
+.env
+.env.*
+!.env.example
+
+# ------------------------------------------------------------
+# Logs
+# ------------------------------------------------------------
+logs/
+*.log
+
+# ------------------------------------------------------------
+# Jupyter / notebooks
+# ------------------------------------------------------------
+.ipynb_checkpoints/
+
+# ------------------------------------------------------------
+# Satellite data
+# ------------------------------------------------------------
+
+# Raw satellite imagery
+data/raw/
+
+# Processed imagery
+data/processed/
+
+# Large downloaded archives
+data/*.tar
+data/*.tar.gz
+data/*.zip
+
+# Temporary/intermediate data
+data/tmp/
+data/cache/
+
+# ------------------------------------------------------------
+# SNAP generated products
+# ------------------------------------------------------------
+*.dim
+*.data/
+*.img
+*.hdr
+
+# SNAP auxiliary files
+*.aux.xml
+
+# SNAP temporary files
+.snap/
+.snap/
+.snap_et/
+.snap_userdir/
+
+# ------------------------------------------------------------
+# Raster / EO temporary files
+# ------------------------------------------------------------
+*.tif.aux.xml
+*.vrt
+*.ovr
+
+# ------------------------------------------------------------
+# Model files
+# ------------------------------------------------------------
+models/*.pt
+models/*.pth
+models/*.onnx
+models/*.safetensors
+models/*.bin
+models/*.ckpt
+models/*.engine
+
+# Keep model directory itself
+!models/.gitkeep
+
+# ------------------------------------------------------------
+# FAISS / vector indexes
+# ------------------------------------------------------------
+*.faiss
+*.index
+*.npy
+*.npz
+
+# ------------------------------------------------------------
+# Databases
+# ------------------------------------------------------------
+*.db
+*.sqlite
+*.sqlite3
+
+# PostgreSQL local volumes
+postgres_data/
+pgdata/
+
+# ------------------------------------------------------------
+# Docker
+# ------------------------------------------------------------
+docker-data/
+docker-volumes/
+
+# ------------------------------------------------------------
+# Frontend
+# ------------------------------------------------------------
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# ------------------------------------------------------------
+# IDE / Editors
+# ------------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# ------------------------------------------------------------
+# OS files
+# ------------------------------------------------------------
+Thumbs.db
+desktop.ini
+
+# ------------------------------------------------------------
+# Temporary files
+# ------------------------------------------------------------
+*.tmp
+*.temp
+*.bak
+
+# ------------------------------------------------------------
+# Keep important project data/config files
+# ------------------------------------------------------------
+
+# AOI definitions should be version controlled
+!data/aoi/
+!data/aoi/*.geojson
+
+# Scene catalog is useful for reproducibility
+!data/catalog/
+!data/catalog/*.json
+
+# Keep empty data directories via .gitkeep if needed
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# ------------------------------------------------------------
+# Test outputs
+# ------------------------------------------------------------
+test_output/
+test_outputs/
+coverage/

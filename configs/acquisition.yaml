@@ -1,0 +1,24 @@
+copernicus:
+  stac_url: "https://stac.dataspace.copernicus.eu/v1"
+
+sentinel2:
+  collection: "sentinel-2-l2a"
+  max_cloud_cover: 20
+
+sentinel1:
+  collection: "sentinel-1-grd"
+  polarization:
+    - VV
+    - VH
+
+search:
+  max_results: 100
+
+storage:
+  sentinel1: "data/raw/sentinel1"
+  sentinel2: "data/raw/sentinel2"
+  landsat: "data/raw/landsat"
+  bhuvan: "data/raw/bhuvan"
+
+catalog:
+  path: "data/catalog/scenes.json"

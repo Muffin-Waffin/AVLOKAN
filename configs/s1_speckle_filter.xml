@@ -1,0 +1,30 @@
+<graph id="s1_speckle_filter">
+    <version>1.0</version>
+
+    <node id="SpeckleFilter">
+        <operator>Speckle-Filter</operator>
+
+        <sources>
+            <source>${source}</source>
+        </sources>
+
+        <parameters>
+            <sourceBands>Sigma0_VV,Sigma0_VH</sourceBands>
+            <filter>Refined Lee</filter>
+            <windowSize>7x7</windowSize>
+        </parameters>
+    </node>
+
+    <node id="Write">
+        <operator>Write</operator>
+
+        <sources>
+            <source>SpeckleFilter</source>
+        </sources>
+
+        <parameters>
+            <file>${target}</file>
+            <formatName>BEAM-DIMAP</formatName>
+        </parameters>
+    </node>
+</graph>

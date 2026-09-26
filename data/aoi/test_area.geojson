@@ -1,0 +1,18 @@
+{
+  "type": "Feature",
+  "properties": {
+    "name": "test_area"
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [75.80, 22.70],
+        [75.90, 22.70],
+        [75.90, 22.80],
+        [75.80, 22.80],
+        [75.80, 22.70]
+      ]
+    ]
+  }
+}

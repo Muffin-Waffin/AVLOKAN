@@ -1,0 +1,31 @@
+<graph id="s1_calibration">
+    <version>1.0</version>
+
+    <node id="Calibration">
+        <operator>Calibration</operator>
+
+        <sources>
+            <source>${source}</source>
+        </sources>
+
+        <parameters>
+            <selectedPolarisations>VV,VH</selectedPolarisations>
+            <outputSigmaBand>true</outputSigmaBand>
+            <outputImageInComplex>false</outputImageInComplex>
+            <outputImageScaleInDb>false</outputImageScaleInDb>
+        </parameters>
+    </node>
+
+    <node id="Write">
+        <operator>Write</operator>
+
+        <sources>
+            <source>Calibration</source>
+        </sources>
+
+        <parameters>
+            <file>${target}</file>
+            <formatName>BEAM-DIMAP</formatName>
+        </parameters>
+    </node>
+</graph>

@@ -1,0 +1,30 @@
+<graph id="s1_border_noise">
+    <version>1.0</version>
+
+    <node id="BorderNoise">
+        <operator>Remove-GRD-Border-Noise</operator>
+
+        <sources>
+            <sourceProduct>${sourceProduct}</sourceProduct>
+        </sources>
+
+        <parameters>
+            <selectedPolarisations>VV,VH</selectedPolarisations>
+            <borderLimit>500</borderLimit>
+            <trimThreshold>0.5</trimThreshold>
+        </parameters>
+    </node>
+
+    <node id="Write">
+        <operator>Write</operator>
+
+        <sources>
+            <source>BorderNoise</source>
+        </sources>
+
+        <parameters>
+            <file>${target}</file>
+            <formatName>BEAM-DIMAP</formatName>
+        </parameters>
+    </node>
+</graph>
