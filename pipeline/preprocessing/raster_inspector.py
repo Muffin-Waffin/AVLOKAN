@@ -164,6 +164,7 @@ def inspect_raster(
                     window=window,
                     masked=True,
                 )
+                total_pixels += data.size
 
                 values = data.compressed()
 
@@ -183,7 +184,6 @@ def inspect_raster(
                 values = values[finite]
 
                 total_valid += values.size
-                total_pixels += data.size
 
                 local_min = float(values.min())
                 local_max = float(values.max())

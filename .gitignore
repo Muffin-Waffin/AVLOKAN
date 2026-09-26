@@ -101,6 +101,13 @@ models/*.safetensors
 models/*.bin
 models/*.ckpt
 models/*.engine
+models/**/*.pt
+models/**/*.pth
+models/**/*.onnx
+models/**/*.safetensors
+models/**/*.bin
+models/**/*.ckpt
+data/embeddings/
 
 # Keep model directory itself
 !models/.gitkeep
@@ -175,6 +182,10 @@ desktop.ini
 # Scene catalog is useful for reproducibility
 !data/catalog/
 !data/catalog/*.json
+
+# Generated Phase 3 catalogs and local vector index artifacts
+data/catalog/tiles.json
+data/index/
 
 # Keep empty data directories via .gitkeep if needed
 !data/raw/.gitkeep

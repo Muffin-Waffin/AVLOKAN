@@ -126,3 +126,20 @@ def test_windowed_raster_conversion(tmp_path):
             sample,
             0.25,
         )
+
+
+def test_raster_conversion_masks_source_nodata(tmp_path):
+    input_path = tmp_path / "landsat.tif"
+    output_path = tmp_path / "landsat_reflectance.tif"
+    with rasterio.open(input_path, "w", driver="GTiff", width=4, height=2,
+                       count=1, dtype="uint16", crs="EPSG:32643",
+                       transform=from_origin(500000, 2500000, 30, 30),
+                       nodata=0) as dst:
+        dst.write(np.array([[0, 1000, 2000, 3000], [4000, 5000, 6000, 7000]], dtype=np.uint16), 1)
+
+    convert_raster(input_path, output_path, LANDSAT_C2_L2_SR_SPEC, window_size=2)
+    with rasterio.open(output_path) as src:
+        result = src.read(1)
+        assert np.isnan(src.nodata)
+        assert np.isnan(result[0, 0])
+        np.testing.assert_allclose(result[0, 1], 1000 * 0.0000275 - 0.2)

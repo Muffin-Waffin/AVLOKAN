@@ -76,13 +76,16 @@ def build_multiband_geotiff(
         )
 
         with rasterio.open(output_path, "w", **profile) as dst:
+            block = 512
             for index, src in enumerate(sources, start=1):
-                dst.write(src.read(1), index)
-
-                dst.set_band_description(
-                    index,
-                    BANDS[index - 1],
-                )
+                dst.set_band_description(index, BANDS[index - 1])
+            for row in range(0, reference.height, block):
+                height = min(block, reference.height - row)
+                for col in range(0, reference.width, block):
+                    width = min(block, reference.width - col)
+                    window = rasterio.windows.Window(col, row, width, height)
+                    for index, src in enumerate(sources, start=1):
+                        dst.write(src.read(1, window=window), index, window=window)
 
     finally:
         for src in sources:

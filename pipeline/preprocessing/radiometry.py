@@ -83,10 +83,7 @@ def convert_array(
     spec: RadiometricSpec,
 ) -> np.ndarray:
 
-    result = values.astype(
-        np.float32,
-        copy=True,
-    )
+    result = values.astype(np.float32, copy=True)
 
     if spec.fill_value is not None:
 
@@ -131,9 +128,7 @@ def convert_raster(
     )
 
     with rasterio.open(input_path) as src:
-
         profile = src.profile.copy()
-
         profile.update(
             dtype="float32",
             nodata=np.nan,
@@ -180,14 +175,17 @@ def convert_raster(
                         height,
                     )
 
-                    data = src.read(
-                        window=window,
-                    )
+                    data = src.read(window=window, masked=True)
 
                     converted = convert_array(
-                        data,
+                        data.filled(spec.fill_value or 0),
                         spec,
                     )
+
+                    # Respect source mask/nodata as well as sensor fill values.
+                    source_invalid = np.ma.getmaskarray(data)
+                    if source_invalid.any():
+                        converted[source_invalid] = np.nan
 
                     dst.write(
                         converted,

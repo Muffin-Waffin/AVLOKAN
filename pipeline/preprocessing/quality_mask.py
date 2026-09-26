@@ -252,7 +252,7 @@ def mask_raster_windowed(
                         height,
                     )
 
-                    data = src.read(window=window)
+                    data = src.read(window=window, masked=True)
                     quality_data = quality.read(
                         1,
                         window=window,
@@ -263,7 +263,9 @@ def mask_raster_windowed(
                         quality_data,
                     )
 
-                    masked = apply_mask(data, mask)
+                    source_invalid = np.ma.getmaskarray(data).any(axis=0)
+                    mask &= ~source_invalid
+                    masked = apply_mask(data.filled(0), mask)
 
                     dst.write(masked, window=window)
 

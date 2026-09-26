@@ -1,0 +1,23 @@
+model:
+  name: RemoteCLIP-ViT-B-32
+  architecture: ViT-B-32
+  source: chendelong/RemoteCLIP
+  checkpoint: models/remoteclip/RemoteCLIP-ViT-B-32.pt
+  checkpoint_sha256: 60014e395d930a3f2963d1d89c8522bf4ad56775571e4356e866864789af85c4
+  embedding_dim: null # Read from model/output and validated at runtime.
+  image_size: 224
+  input_bands:
+    red: B04
+    green: B03
+    blue: B02
+  source_band_order: [B02, B03, B04, B08]
+  unused_bands: [B08]
+runtime:
+  device: auto
+  batch_size: 4
+  fp16: true # Enabled only for CUDA inference.
+paths:
+  tile_dir: data/processed/phase2_validation/tiles/s2_demo
+  catalog: data/catalog/tiles.json
+  embedding_dir: data/embeddings
+  index: data/index/remoteclip_vit_b32.index

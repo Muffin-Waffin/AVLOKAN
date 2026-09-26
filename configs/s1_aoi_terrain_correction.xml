@@ -1,0 +1,49 @@
+<graph id="s1_aoi_terrain_correction">
+    <version>1.0</version>
+
+    <node id="Subset">
+        <operator>Subset</operator>
+        <sources>
+            <source>${source}</source>
+        </sources>
+        <parameters>
+            <copyMetadata>true</copyMetadata>
+            <fullSwath>false</fullSwath>
+            <geoRegion>${geoRegion}</geoRegion>
+            <sourceBands>Sigma0_VV,Sigma0_VH</sourceBands>
+        </parameters>
+    </node>
+
+    <node id="TerrainCorrection">
+        <operator>Terrain-Correction</operator>
+        <sources>
+            <source>Subset</source>
+        </sources>
+        <parameters>
+            <sourceBands>Sigma0_VV,Sigma0_VH</sourceBands>
+            <externalDEMFile>${dem}</externalDEMFile>
+            <externalDEMNoDataValue>-32768</externalDEMNoDataValue>
+            <externalDEMApplyEGM>false</externalDEMApplyEGM>
+            <demResamplingMethod>BILINEAR_INTERPOLATION</demResamplingMethod>
+            <imgResamplingMethod>BILINEAR_INTERPOLATION</imgResamplingMethod>
+            <pixelSpacingInMeter>10.0</pixelSpacingInMeter>
+            <pixelSpacingInDegree>0.0</pixelSpacingInDegree>
+            <mapProjection>EPSG:32643</mapProjection>
+            <alignToStandardGrid>false</alignToStandardGrid>
+            <nodataValueAtSea>true</nodataValueAtSea>
+            <saveSelectedSourceBand>true</saveSelectedSourceBand>
+            <saveLayoverShadowMask>true</saveLayoverShadowMask>
+        </parameters>
+    </node>
+
+    <node id="Write">
+        <operator>Write</operator>
+        <sources>
+            <source>TerrainCorrection</source>
+        </sources>
+        <parameters>
+            <file>${target}</file>
+            <formatName>GeoTIFF-BigTIFF</formatName>
+        </parameters>
+    </node>
+</graph>
