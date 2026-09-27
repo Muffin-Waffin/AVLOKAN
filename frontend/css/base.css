@@ -1,0 +1,15 @@
+/* ==========================================================================
+   AVLOKAN - Base Resets, Global Styles & Animations
+   ========================================================================== */
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,-apple-system,Roboto,Arial,sans-serif;line-height:1.55;overflow-x:hidden}
+.mono{font-family:ui-monospace,'Cascadia Mono',Consolas,monospace}
+button{font-family:inherit;cursor:pointer}input{font-family:inherit}
+::selection{background:rgba(123,166,163,.3)}
+::-webkit-scrollbar{width:9px;height:9px}::-webkit-scrollbar-thumb{background:var(--line2);border-radius:5px}::-webkit-scrollbar-track{background:transparent}
+.hidden{display:none!important}
+.view{display:none}.view.active{display:block;animation:vin .35s ease}
+@keyframes vin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}

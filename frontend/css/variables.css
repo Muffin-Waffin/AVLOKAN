@@ -1,0 +1,22 @@
+/* ==========================================================================
+   AVLOKAN - CSS Variables & Design Tokens
+   ========================================================================== */
+
+:root{--bg:#f5f1e6;--bg2:#eee7d5;--panel:#fbf8ef;--panel2:#f2ecdc;--line:#e3dcc8;--line2:#d3cab0;
+--text:#403a2c;--muted:#7c7566;--faint:#a39a86;
+--cyan:#7ba6a3;--cyan2:#5b8c89;--cyan-d:#41706d;
+--green:#7c9a78;--green-d:#4e6b4f;
+--amber:#d3a656;--amber-d:#96701d;
+--red:#c98b8b;--red-d:#8f4e4e;
+--violet:#a894ad;--violet-d:#6f5a77;
+--orange:#c98d68;--orange-d:#9c6244}
+/* :root{
+--bg:#052659;--bg2:#021024;--panel:#123A6E;--panel2:#1C4680;
+--line:#2A5590;--line2:#3A66A3;
+--text:#C1E8FF;--muted:#9CC4E8;--faint:#7DA0CA;
+--cyan:#7DA0CA;--cyan2:#A9CBEA;--cyan-d:#C1E8FF;
+--green:#7FC9A6;--green-d:#C9F0DD;
+--amber:#E5C088;--amber-d:#F7E3B0;
+--red:#E09696;--red-d:#F0BCBC;
+--violet:#9FA8D8;--violet-d:#D8DCF4;
+--orange:#DFA47E;--orange-d:#F4C4A0} */

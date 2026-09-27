@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "computer-vision-opencv": {
+      "source": "mindrally/skills",
+      "sourceType": "github",
+      "skillPath": "computer-vision-opencv/SKILL.md",
+      "computedHash": "18c248ee75adf4ebffb009c3d98b374629d6c7b9abafd31ab5f01e3c5d812981"
+    },
+    "vision": {
+      "source": "kotot/vision",
+      "sourceType": "github",
+      "skillPath": "vision/SKILL.md",
+      "computedHash": "3ff0bf6adbaccca4bfc25ce795c252fcd683b795f248d138249e34ede3aa4a7f"
+    }
+  }
+}

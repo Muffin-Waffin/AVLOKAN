@@ -1,0 +1,37 @@
+/* ==========================================================================
+   AVLOKAN - App Shell, Navigation & Layout Grid
+   ========================================================================== */
+
+/* ---------- APP SHELL ---------- */
+#app{display:flex;min-height:100vh}
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:242px;background:var(--bg2);border-right:1px solid var(--line);display:flex;flex-direction:column;z-index:40;transition:transform .28s ease}
+.s-brand{display:flex;align-items:center;gap:11px;padding:20px 20px 16px;border-bottom:1px solid var(--line)}
+.s-brand svg{width:32px;height:32px}
+.s-label{font-size:10px;letter-spacing:1.8px;color:var(--faint);text-transform:uppercase;font-weight:700;padding:18px 22px 8px}
+.snav{display:flex;align-items:center;gap:12px;padding:11px 22px;color:var(--muted);font-size:13.5px;font-weight:600;cursor:pointer;border-left:3px solid transparent;transition:.15s}
+.snav svg{width:17px;height:17px;flex:0 0 17px}
+.snav:hover{color:var(--text);background:rgba(123,166,163,.06)}
+.snav.active{color:var(--cyan-d);border-left-color:var(--cyan);background:rgba(123,166,163,.1)}
+.sbadge{margin-left:auto;background:rgba(211,166,86,.16);color:var(--amber-d);border:1px solid rgba(211,166,86,.45);border-radius:999px;font-size:10.5px;font-weight:800;padding:1px 8px}
+.s-foot{margin-top:auto;border-top:1px solid var(--line);padding:14px 18px;display:flex;align-items:center;gap:11px}
+.avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#7c9a78,#7ba6a3);color:#f7f4ea;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:0 0 34px}
+.sf-n{font-size:12.5px;font-weight:700}.sf-r{font-size:10.5px;color:var(--faint)}
+.s-logout{margin-left:auto;background:none;border:1px solid var(--line);border-radius:8px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;color:var(--muted)}
+.s-logout:hover{color:var(--red-d);border-color:rgba(201,139,139,.45)}
+.s-logout svg{width:14px;height:14px}
+.main{flex:1;margin-left:242px;display:flex;flex-direction:column;min-width:0}
+.classbar{background:rgba(201,141,104,.1);border-bottom:1px solid rgba(201,141,104,.3);color:var(--orange-d);text-align:center;font-size:10.5px;letter-spacing:2.5px;font-weight:700;padding:5px}
+.topbar{position:sticky;top:0;z-index:30;background:rgba(245,241,230,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:13px 26px;gap:14px;flex-wrap:wrap}
+.crumb{font-size:13.5px;color:var(--faint)}.crumb b{color:var(--text)}
+.pills{display:flex;gap:9px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:5px 12px;font-size:10.5px;letter-spacing:1px;color:var(--muted);font-weight:700}
+.pill .dot{width:7px;height:7px;border-radius:50%}
+.pill .dot.g{background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 2s infinite}
+.pill .dot.v{background:var(--violet);box-shadow:0 0 8px var(--violet)}
+.pages{padding:26px;max-width:1460px;width:100%}
+.menu-btn{display:none;background:var(--panel2);border:1px solid var(--line);border-radius:9px;width:34px;height:34px;align-items:center;justify-content:center;color:var(--muted)}
+.menu-btn svg{width:16px;height:16px}
+.scrim{position:fixed;inset:0;background:rgba(64,58,44,.4);z-index:35;display:none}
+.scrim.on{display:block}
+.icon-btn{background:var(--panel2);border:1px solid var(--line2);border-radius:9px;width:32px;height:32px;color:var(--muted);font-size:14px;cursor:pointer;flex:0 0 32px}
+.icon-btn:hover{color:var(--cyan-d);border-color:var(--cyan2)}

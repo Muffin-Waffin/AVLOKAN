@@ -1,0 +1,30 @@
+{
+  "selected_device": "cuda",
+  "torch_version": "2.12.0+cu132",
+  "cuda_version": "13.2",
+  "gpu_name": "NVIDIA GeForce RTX 5060 Ti",
+  "gpu_vram_gib": 15.90179443359375,
+  "requested_device": "auto",
+  "seed": 42,
+  "train_locations": [
+    "abudhabi",
+    "aguasclaras",
+    "beihai",
+    "beirut",
+    "bordeaux",
+    "cupertino",
+    "hongkong",
+    "nantes",
+    "paris",
+    "rennes",
+    "saclay_e"
+  ],
+  "validation_locations": [
+    "bercy",
+    "mumbai",
+    "pisa"
+  ],
+  "training_patch_count": 407,
+  "validation_patch_count": 28,
+  "training_positive_weight": 20
+}

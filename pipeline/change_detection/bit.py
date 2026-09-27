@@ -7,21 +7,54 @@ from pathlib import Path
 import torch
 from torch import nn
 import torch.nn.functional as F
-from torchvision.models import resnet18
+from torchvision.models.resnet import BasicBlock, ResNet, conv3x3
 
 from pipeline.embeddings.device import select_device
 from pipeline.change_detection.help_funcs import Transformer, TransformerDecoder, TwoLayerConv2d
+from pipeline.change_detection.bit_alignment import align_bit_logits
 
 BIT_MODEL_NAME = "BIT-CD BASE_Transformer (base_transformer_pos_s4_dd8)"
 BIT_CHECKPOINT = Path("models/bit/BIT_LEVIR/best_ckpt.pt")
 BIT_CHECKPOINT_SHA256 = "c159ba76143447f58c9f367ce8126a0014f2e4ba218cdb97cca173952c38cb3b"
 
 
+class DilatedBasicBlock(BasicBlock):
+    """Torchvision BasicBlock with the dilation support used by official BIT.
+
+    Recent torchvision releases reject dilation in BasicBlock even though the
+    BIT ResNet-18 configuration replaces the final two strides with dilation.
+    The block has the same parameters and state-dict keys; only its convolutions
+    honor the dilation already supplied by ``ResNet._make_layer``.
+    """
+
+    def __init__(
+        self, inplanes, planes, stride=1, downsample=None, groups=1,
+        base_width=64, dilation=1, norm_layer=None,
+    ):
+        nn.Module.__init__(self)
+        if groups != 1 or base_width != 64:
+            raise ValueError("BasicBlock only supports groups=1 and base_width=64")
+        norm_layer = nn.BatchNorm2d if norm_layer is None else norm_layer
+        self.conv1 = conv3x3(inplanes, planes, stride)
+        self.bn1 = norm_layer(planes)
+        self.relu = nn.ReLU(inplace=True)
+        self.conv2 = conv3x3(planes, planes, dilation=dilation)
+        self.bn2 = norm_layer(planes)
+        self.downsample = downsample
+        self.stride = stride
+
+
 class BITArchitecture(nn.Module):
     """State-dict-compatible official BIT-CD model (3-channel, 2-class)."""
     def __init__(self):
         super().__init__()
-        self.resnet = resnet18(weights=None, replace_stride_with_dilation=[False, True, True])
+        # BIT's official base_transformer_pos_s4_dd8 configuration uses output
+        # stride 8. The custom BasicBlock preserves torchvision's ResNet layout
+        # and checkpoint keys while enabling its historical dilated stages.
+        self.resnet = ResNet(
+            DilatedBasicBlock, [2, 2, 2, 2],
+            replace_stride_with_dilation=[False, True, True],
+        )
         self.relu = nn.ReLU()
         self.upsamplex2 = nn.Upsample(scale_factor=2)
         self.upsamplex4 = nn.Upsample(scale_factor=4, mode="bilinear")
@@ -42,7 +75,9 @@ class BITArchitecture(nn.Module):
         self.enc_depth, self.dec_depth = 1, 8
         self.dim_head, self.decoder_dim_head = 64, 64
         self.transformer = Transformer(32, 1, 8, 64, 64, 0)
-        self.transformer_decoder = TransformerDecoder(32, 8, 8, 64, 64, 0, softmax=True)
+        # The official checkpoint's cross-attention projections are [64, 32],
+        # which encode one 64-dimensional head (not eight heads).
+        self.transformer_decoder = TransformerDecoder(32, 8, 1, 64, 64, 0, softmax=True)
 
     def forward_single(self, x):
         x = self.resnet.maxpool(self.resnet.relu(self.resnet.bn1(self.resnet.conv1(x))))
@@ -76,30 +111,58 @@ class BITDetector:
         path = Path(checkpoint_path)
         if not path.is_file():
             raise FileNotFoundError(
-                f"BIT checkpoint is missing: {path}. Place the official BIT-CD LEVIR best_ckpt.pt there; "
+                f"BIT checkpoint is missing: {path}. Configure an existing BIT checkpoint; "
                 "the model will not run with random weights."
             )
         digest = hashlib.sha256(path.read_bytes()).hexdigest()
-        if digest != BIT_CHECKPOINT_SHA256:
-            raise RuntimeError(f"BIT checkpoint SHA-256 mismatch for {path}: {digest}")
         self.device = select_device(device)
         self.model = BITArchitecture()
-        # The hash pins this file to the trusted official checkpoint before loading its legacy container.
         container = torch.load(path, map_location="cpu", weights_only=False)
-        state = container.get("model_G_state_dict")
+        if digest == BIT_CHECKPOINT_SHA256:
+            # Keep the official upstream artifact pinned to its verified digest.
+            state = container.get("model_G_state_dict")
+        else:
+            # AVLOKAN OSCD checkpoints store the same architecture as a strict
+            # state dict inside a training provenance container.
+            state = container.get("model_state_dict") if isinstance(container, dict) else None
+            base_hash = container.get("base_checkpoint_sha256") if isinstance(container, dict) else None
+            if not isinstance(state, dict) or base_hash != BIT_CHECKPOINT_SHA256:
+                raise RuntimeError(
+                    f"Unsupported BIT checkpoint {path}: expected the pinned official LEVIR checkpoint "
+                    "or an AVLOKAN fine-tuned checkpoint with verified base_checkpoint_sha256 metadata"
+                )
         if not isinstance(state, dict):
-            raise RuntimeError("Checkpoint has no model_G_state_dict (not an official BIT-CD training checkpoint)")
-        self.model.load_state_dict(state, strict=True)
+            raise RuntimeError(f"Checkpoint has no compatible BIT model state: {path}")
+        try:
+            self.model.load_state_dict(state, strict=True)
+        except RuntimeError as exc:
+            raise RuntimeError(
+                "Official BIT checkpoint could not be loaded strictly into the configured "
+                f"BIT architecture; refusing to run with partial or random weights: {exc}"
+            ) from exc
         self.model.eval().to(self.device)
         self.checkpoint_path = path
         self.checkpoint_sha256 = digest
+        self.model_config = (
+            container.get("config") if isinstance(container, dict) else None
+        )
+        del container
 
     @torch.inference_mode()
-    def predict(self, t1: torch.Tensor, t2: torch.Tensor, *, threshold: float = 0.5):
+    def predict(
+        self,
+        t1: torch.Tensor,
+        t2: torch.Tensor,
+        *,
+        threshold: float = 0.5,
+        target_shape: tuple[int, int] | None = None,
+    ):
         if not 0.0 <= threshold <= 1.0:
             raise ValueError("threshold must be between 0 and 1")
         t1, t2 = t1.to(self.device), t2.to(self.device)
         logits = self.model(t1, t2)
+        if target_shape is not None:
+            logits = align_bit_logits(logits, target_shape)
         probability = torch.softmax(logits.float(), dim=1)[:, 1]
         mask = probability >= threshold
         return {"logits": logits, "probability": probability, "mask": mask}

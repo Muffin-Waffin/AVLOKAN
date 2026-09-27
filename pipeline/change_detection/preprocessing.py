@@ -10,7 +10,7 @@ from rasterio.windows import Window
 
 
 BIT_INPUT_SIZE = 256
-BAND_ORDER = (4, 3, 2)  # model RGB = Sentinel-2 B04, B03, B02; retain B08 in source.
+BAND_ORDER = (3, 2, 1)  # model RGB = Sentinel-2 B04, B03, B02; retain B08 in source.
 
 
 def read_model_tensor(path: str | Path, window: Window, *, size: int = BIT_INPUT_SIZE) -> tuple[torch.Tensor, np.ndarray]:
@@ -25,7 +25,8 @@ def read_model_tensor(path: str | Path, window: Window, *, size: int = BIT_INPUT
         if src.count < 4:
             raise ValueError(f"Expected B02/B03/B04/B08 source with at least 4 bands: {path}")
         data = src.read(BAND_ORDER, window=window, boundless=True, fill_value=0, masked=True)
-        valid = ~np.ma.getmaskarray(data).any(axis=0)
+        raw = np.asarray(data.astype(np.float32).filled(np.nan), dtype=np.float32)
+        valid = ~np.ma.getmaskarray(data).any(axis=0) & np.isfinite(raw).all(axis=0)
         # Boundless padding is masked only if the source has nodata. Explicitly
         # mark cells outside the raster invalid as well.
         row0, col0 = int(window.row_off), int(window.col_off)
@@ -34,7 +35,7 @@ def read_model_tensor(path: str | Path, window: Window, *, size: int = BIT_INPUT
         x = np.arange(col0, col0 + w)[None, :]
         inside = (y >= 0) & (y < src.height) & (x >= 0) & (x < src.width)
         valid &= inside
-        reflectance = np.asarray(data.filled(0), dtype=np.float32)
+        reflectance = np.nan_to_num(raw, nan=0.0, posinf=0.0, neginf=0.0)
         reflectance = np.clip(reflectance, 0.0, 1.0)
         normalized = reflectance * np.float32(2.0) - np.float32(1.0)
         normalized[:, ~valid] = 0.0

@@ -36,6 +36,7 @@ class Retriever:
         date_from: str | date | datetime | None,
         date_to: str | date | datetime | None,
         bbox: Sequence[float] | None,
+        bbox_crs: str | None = None,
         query_path: str | Path | None = None,
         exclude_query_tile: bool = False,
         total_started: float,
@@ -46,7 +47,8 @@ class Retriever:
             raise ValueError("top_k must be greater than zero")
         metadata_started = perf_counter()
         eligible = eligible_tiles(
-            self.catalog, sensor=sensor, date_from=date_from, date_to=date_to, bbox=bbox
+            self.catalog, sensor=sensor, date_from=date_from, date_to=date_to,
+            bbox=bbox, bbox_crs=bbox_crs,
         )
         by_id = {record.tile_id: record for record in eligible}
         query_tile_id = None
@@ -130,6 +132,7 @@ class Retriever:
         date_from: str | date | datetime | None = None,
         date_to: str | date | datetime | None = None,
         bbox: Sequence[float] | None = None,
+        bbox_crs: str | None = None,
     ) -> dict:
         total_started = perf_counter()
         if not isinstance(query, str) or not query.strip():
@@ -141,7 +144,7 @@ class Retriever:
         embedding_ms = (perf_counter() - started) * 1000
         return self._search(
             normalize_embeddings(vector), query=query.strip(), query_type="text", top_k=top_k,
-            sensor=sensor, date_from=date_from, date_to=date_to, bbox=bbox,
+            sensor=sensor, date_from=date_from, date_to=date_to, bbox=bbox, bbox_crs=bbox_crs,
             query_embedding_ms=embedding_ms, total_started=total_started,
         )
 
@@ -154,6 +157,7 @@ class Retriever:
         date_from: str | date | datetime | None = None,
         date_to: str | date | datetime | None = None,
         bbox: Sequence[float] | None = None,
+        bbox_crs: str | None = None,
         exclude_query_tile: bool = False,
     ) -> dict:
         total_started = perf_counter()
@@ -171,7 +175,7 @@ class Retriever:
         model_preprocess_seconds = getattr(self.model, "preprocessing_seconds", 0.0) - preprocess_before
         return self._search(
             normalize_embeddings(vector), query=str(path), query_type="image", top_k=top_k,
-            sensor=sensor, date_from=date_from, date_to=date_to, bbox=bbox,
+            sensor=sensor, date_from=date_from, date_to=date_to, bbox=bbox, bbox_crs=bbox_crs,
             query_path=path, exclude_query_tile=exclude_query_tile,
             query_embedding_ms=embedding_ms,
             image_preprocessing_ms=(read_seconds + model_preprocess_seconds) * 1000,

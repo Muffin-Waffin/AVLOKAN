@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="avlokan-api-base" content="http://127.0.0.1:8000">
+  <title>AVLOKAN — Sovereign Semantic EO Platform</title>
+
+  <!-- Core Design Tokens & Foundational Styles -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+
+  <!-- Modular View Stylesheets -->
+  <link rel="stylesheet" href="css/modules/login.css">
+  <link rel="stylesheet" href="css/modules/dashboard.css">
+  <link rel="stylesheet" href="css/modules/investigate.css">
+  <link rel="stylesheet" href="css/modules/search.css">
+  <link rel="stylesheet" href="css/modules/results.css">
+  <link rel="stylesheet" href="css/modules/scene-map.css">
+  <link rel="stylesheet" href="css/modules/analysis.css">
+  <link rel="stylesheet" href="css/modules/review-audit.css">
+
+  <!-- Color Palette Studio Stylesheet -->
+  <link rel="stylesheet" href="css/modules/color-studio.css">
+  <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+</head>
+<body>
+
+<!-- ========== 1 · LOGIN / HOME ========== -->
+<div id="view-login" class="view active">
+  <canvas id="topo"></canvas>
+  <div class="login-card">
+    <div class="lc-logo">
+      <svg viewBox="0 0 40 40"><polygon points="20,2 36,11 36,29 20,38 4,29 4,11" fill="none" stroke="#5b8c89" stroke-width="2"/><circle cx="20" cy="20" r="6.5" fill="none" stroke="#7c9a78" stroke-width="2"/><circle cx="20" cy="20" r="2" fill="#5b8c89"/></svg>
+      <div><div class="lc-name">AVLOKAN</div><div class="lc-sub">Sovereign Semantic EO Platform</div></div>
+    </div>
+    <div class="lc-ps">SIH26227 · Space Technology · Team <b>Codenostic</b></div>
+    <div class="lfield"><label>Analyst ID</label><input id="loginUser" value="analyst.01" autocomplete="off"></div>
+    <div class="lfield"><label>Passphrase</label><input id="loginPass" type="password" value="avlokan-demo"></div>
+    <button class="btn btn-primary" id="loginBtn" onclick="doLogin()">Sign In — Secure Console</button>
+    <div class="lc-foot"><span class="dot"></span>AIR-GAPPED · ON-PREMISES · v2026.1.0 · demo build — any credentials work</div>
+  </div>
+</div>
+
+<!-- ========== APP SHELL ========== -->
+<div id="app" class="hidden">
+  <div class="scrim" id="scrim" onclick="toggleSide(false)"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="s-brand">
+      <svg viewBox="0 0 40 40"><polygon points="20,2 36,11 36,29 20,38 4,29 4,11" fill="none" stroke="#5b8c89" stroke-width="2"/><circle cx="20" cy="20" r="6.5" fill="none" stroke="#7c9a78" stroke-width="2"/><circle cx="20" cy="20" r="2" fill="#5b8c89"/></svg>
+      <div><div class="lc-name" style="font-size:17px">AVLOKAN</div><div class="lc-sub">Sovereign EO Intelligence</div></div>
+    </div>
+    <div class="s-label">Modules</div>
+    <a class="snav active" data-go="dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>Dashboard</a>
+    <a class="snav" data-go="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Search Imagery</a>
+    <a class="snav" data-go="scene"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>Change Analysis</a>
+    <a class="snav" data-go="review"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Review Queue<span class="sbadge" id="revBadge">14</span></a>
+    <a class="snav" data-go="map"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>Map</a>
+    <a class="snav" data-go="audit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Audit / History</a>
+        <a class="snav" id="snavColorStudio" onclick="toggleColorStudio(true)" title="Color Palette Studio">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 0-4 19.19V17a2 2 0 0 1 2-2h4a2 2 0 0 0 2-2v-1a2 2 0 0 0-2-2h-2a2 2 0 0 1-2-2V5.5A10 10 0 0 0 12 2z"/>
+      </svg>
+      Palette Studio <span class="sbadge" style="background:var(--cyan);color:#fff;border-color:transparent">Live</span>
+    </a>
+    <div class="s-foot">
+      <div class="avatar">A1</div>
+      <div><div class="sf-n">Analyst 01</div><div class="sf-r">Senior Imagery Analyst</div></div>
+      <button class="s-logout" onclick="logout()" title="Sign out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></button>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="classbar">RESTRICTED · FOR OFFICIAL USE ONLY · AIR-GAPPED DEPLOYMENT</div>
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="menu-btn" onclick="toggleSide()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg></button>
+        <span class="crumb" id="crumb">AVLOKAN / <b>Mission Dashboard</b></span>
+      </div>
+      <div class="pills">
+        <button class="palette-btn" id="paletteBtnTop" onclick="toggleColorStudio(true)" title="Color Studio & Theme Customizer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 0-4 19.19V17a2 2 0 0 1 2-2h4a2 2 0 0 0 2-2v-1a2 2 0 0 0-2-2h-2a2 2 0 0 1-2-2V5.5A10 10 0 0 0 12 2z"/>
+          </svg>
+          <span>Palette Studio</span>
+        </button>
+
+        <span class="pill"><span class="dot g"></span>INDEX LIVE · 1.28M</span>
+        <span class="pill" id="apiStatusPill"><span class="dot v"></span>API STATUS UNKNOWN</span>
+        <span class="pill mono" id="clock">--:--:-- IST</span>
+      </div>
+    </div>
+
+    <div class="pages">
+      <!-- ========== 2 · DASHBOARD (with Live AOI Monitor map) ========== -->
+      <section id="view-dashboard" class="view active">
+        <div class="dash-head"><h1 id="greet">Good morning, Analyst</h1><p id="dashDate">—</p></div>
+        <div class="flowstrip" id="flowDash"></div>
+        <div class="stats">
+          <div class="stat cyan"><div class="sn mono" data-count="1284920">0</div><div class="sl">Tiles Indexed</div><div class="sd">+3,204 in last incremental sync</div></div>
+          <div class="stat violet"><div class="sn mono" data-count="8412">0</div><div class="sl">Scenes Ingested · 30d</div><div class="sd">S2 · S1 · Landsat C2 · Bhuvan</div></div>
+          <div class="stat amber" style="cursor:pointer" onclick="go('review')"><div class="sn mono" id="statPending" data-count="14">0</div><div class="sl">Pending Review</div><div class="sd">2 high-confidence · awaiting decision</div></div>
+          <div class="stat green"><div class="sn mono">0.42s</div><div class="sl">Avg Query Latency</div><div class="sd">FAISS HNSW · sub-second retrieval</div></div>
+        </div>
+
+        <div class="dash-map-row">
+          <div class="panel map-panel">
+            <div class="panel-h"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>AOI Monitor <span class="mh-sub">local Sentinel-2 basemap · backend AOI points</span> <span class="mh-live"><span class="dot"></span>LOCAL</span></div>
+            <div class="map-body" id="mapBody">
+              <canvas id="eoMap"></canvas>
+              <div class="map-chips">
+                <span class="mchip on" data-l="optical" onclick="toggleLayer(this)">LOCAL BASEMAP</span>
+                <span class="mchip on" data-l="radius" onclick="toggleLayer(this)">AOI RADIUS</span>
+                <span class="mchip on" data-l="heat" onclick="toggleLayer(this)">AOI RADIUS</span>
+                <span class="mchip on" data-l="labels" onclick="toggleLayer(this)">LABELS</span>
+              </div>
+              <div class="map-zoom">
+                <button class="zbtn" onclick="zoomStep(1)">+</button>
+                <button class="zbtn" onclick="zoomStep(-1)">−</button>
+                <button class="zbtn" onclick="mapHome()" title="Reset view">⌂</button>
+              </div>
+              <div class="map-coords mono" id="mapCoords">—</div>
+              <div class="map-legend">
+                <span class="legend-item"><span class="lg" style="background:#5b8c89"></span>REGISTERED AOI</span>
+              </div>
+            </div>
+            <div class="map-foot"><span>DRAG TO PAN · SCROLL TO ZOOM · CLICK AN AOI TO INVESTIGATE</span><span class="mono" id="mapGsd">GSD —</span></div>
+          </div>
+
+          <div class="dash-right">
+            <div class="panel">
+              <div class="panel-h"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>AOI Registry <span class="mh-sub">5 active</span></div>
+              <div class="panel-b" id="aoiList"></div>
+            </div>
+            <div class="panel">
+              <div class="panel-h"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>System Status</div>
+              <div class="panel-b" id="sysStatus"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dash-lower">
+          <div class="mods">
+            <div class="mod" onclick="go('search')"><span class="go">→</span><div class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><h3>Search Imagery</h3><p>Semantic text or image retrieval over the locally indexed tile catalog.</p></div>
+            <div class="mod" onclick="go('scene')"><span class="go">→</span><div class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div><h3>Change Analysis</h3><p>Run the configured BIT analysis on two locally available Sentinel-2 observations.</p></div>
+            <div class="mod alert" onclick="go('review')"><span class="go">→</span><div class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div><h3>Review Queue <span class="mbadge">backend queue</span></h3><p>Review retained components produced by completed backend analyses.</p></div>
+            <div class="mod" onclick="go('map')"><span class="go">→</span><div class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div><h3>Map Explorer</h3><p>Illustrative coordinate canvas with real backend AOI points and local catalog queries.</p></div>
+            <div class="mod" onclick="go('audit')"><span class="go">→</span><div class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div><h3>Audit / History</h3><p>Immutable provenance and decision log — every verdict traceable to source scene and analyst.</p></div>
+          </div>
+          <div class="panel">
+            <div class="panel-h"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>Recent Activity</div>
+            <div class="panel-b" id="feed"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Stages 3–10 : stubs, built in later phases -->
+      <section id="view-search"    class="view"></section>
+      <section id="view-results"   class="view"></section>
+      <section id="view-scene"     class="view"></section>
+      <section id="view-map"       class="view"></section>
+      <section id="view-analysis"  class="view"></section>
+      <section id="view-detection" class="view"></section>
+      <section id="view-verified"  class="view"></section>
+      <section id="view-review"    class="view"></section>
+      <section id="view-audit"     class="view"></section>
+    </div>
+  </div>
+</div>
+
+<!-- ========== INVESTIGATE MODAL ========== -->
+<div class="overlay hidden" id="invOverlay" onclick="if(event.target===this)closeInv()">
+  <div class="modal">
+    <div class="modal-h">
+      <span class="inv-dot" id="invDot"></span>
+      <div><div class="inv-t" id="invName">—</div><div class="inv-s mono" id="invSub">—</div></div>
+      <span class="badge h" id="invBadge">HIGH PRIORITY</span>
+      <span class="badge violet hidden" id="invSar">SAR FALLBACK ENGAGED</span>
+      <button class="icon-btn" style="margin-left:auto" onclick="closeInv()">✕</button>
+    </div>
+    <div class="modal-b">
+      <div class="swipe" id="swipe">
+        <canvas id="cvB" width="640" height="360"></canvas>
+        <canvas id="cvA" width="640" height="360"></canvas>
+        <div class="sw-handle" id="swHandle"><span>⇄</span></div>
+        <span class="sw-tag l mono" id="tagT1">T1</span>
+        <span class="sw-tag r mono" id="tagT2">T2</span>
+      </div>
+      <div class="inv-tip">DRAG THE HANDLE TO COMPARE · T1 BASELINE ↔ T2 CURRENT</div>
+      <div class="metrics" id="invMetrics"></div>
+      <div class="inv-sec">OBSERVATION TIMELINE — SENTINEL PASSES</div>
+      <div class="tl" id="invTl"></div>
+      <div class="inv-sec">Δ EVIDENCE — SPECTRAL CHANGE HEAT</div>
+      <canvas id="cvD" width="640" height="240"></canvas>
+      <div class="dossier" id="invCat"></div>
+    </div>
+    <div class="modal-f">
+      <button class="btn btn-primary" style="width:auto" onclick="queueAOI()">Add to Review Queue</button>
+      <button class="btn btn-ghost" style="width:auto" onclick="exportDossier()">Export Dossier</button>
+      <button class="btn btn-ghost" style="width:auto;margin-left:auto" onclick="closeInv()">Close</button>
+    </div>
+  </div>
+</div>
+
+<div id="toasts"></div>
+
+  <!-- ========================================================================= -->
+  <!-- JAVASCRIPT MODULES                                                       -->
+  <!-- ========================================================================= -->
+
+  <!-- Core Data, State & Utilities -->
+  <script src="js/data.js"></script>
+  <script src="js/helpers.js"></script>
+  <script src="js/api-client.js"></script>
+  <script src="js/router.js"></script>
+  <script src="js/topo.js"></script>
+
+  <!-- Feature Modules -->
+  <script src="js/modules/dashboard.js"></script>
+  <script src="vendor/leaflet/leaflet.js"></script>
+  <script src="js/modules/offline-map.js"></script>
+  <script src="js/modules/map-engine.js"></script>
+  <script src="js/modules/investigate.js"></script>
+  <script src="js/modules/search.js"></script>
+  <script src="js/modules/results.js"></script>
+  <script src="js/modules/scene-map.js"></script>
+  <script src="js/modules/analysis.js"></script>
+  <script src="js/modules/review-audit.js"></script>
+
+  <!-- Color Palette Studio Engine -->
+  <script src="js/modules/color-studio.js"></script>
+
+  <!-- Application Bootstrap -->
+  <script src="js/main.js"></script>
+</body>
+</html>

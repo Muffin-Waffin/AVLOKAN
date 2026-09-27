@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+from dataclasses import replace
+
 import pytest
+from rasterio.warp import transform_bounds
 
 from pipeline.retrieval.filters import eligible_tiles
 
@@ -35,3 +38,17 @@ def test_catalog_candidate_helper(retrieval_setup):
     retriever, _, _ = retrieval_setup
     records = eligible_tiles(retriever.catalog, sensor="landsat")
     assert [record.tile_id for record in records] == ["tile-1"]
+
+
+def test_wgs84_bbox_is_reprojected_for_projected_tile_bounds(retrieval_setup):
+    retriever, records, _ = retrieval_setup
+    bbox = [74.999, 22.999, 75.001, 23.001]
+    projected = transform_bounds("EPSG:4326", "EPSG:32643", *bbox)
+    retriever.catalog.upsert_many([replace(records[0], bounds=tuple(projected))])
+    matches = eligible_tiles(
+        retriever.catalog, sensor="sentinel-2", bbox=bbox, bbox_crs="EPSG:4326",
+    )
+    assert [record.tile_id for record in matches] == ["tile-0"]
+    response = retriever.search_text("urban", sensor="sentinel-2", top_k=3,
+                                     bbox=bbox, bbox_crs="EPSG:4326")
+    assert [result["tile_id"] for result in response["results"]] == ["tile-0"]

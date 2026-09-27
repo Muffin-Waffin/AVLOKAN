@@ -1,0 +1,17 @@
+{
+  "source": "OSCD official Images archive train.txt and test.txt",
+  "validation_policy": "The lexicographically first three official training location IDs are validation; this location-level rule was fixed before model evaluation.",
+  "official_train": [
+    "abudhabi", "aguasclaras", "beihai", "beirut", "bercy", "bordeaux", "cupertino",
+    "hongkong", "mumbai", "nantes", "paris", "pisa", "rennes", "saclay_e"
+  ],
+  "train": [
+    "beirut", "bercy", "bordeaux", "cupertino", "hongkong", "mumbai",
+    "nantes", "paris", "pisa", "rennes", "saclay_e"
+  ],
+  "validation": ["abudhabi", "aguasclaras", "beihai"],
+  "test": [
+    "brasilia", "chongqing", "dubai", "lasvegas", "milano",
+    "montpellier", "norcia", "rio", "saclay_w", "valencia"
+  ]
+}

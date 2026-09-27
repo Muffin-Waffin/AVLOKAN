@@ -1,0 +1,23 @@
+/* ==========================================================================
+   AVLOKAN - Reusable Components (Stubs, Toasts, Shared UI)
+   ========================================================================== */
+
+/* ---------- STUBS ---------- */
+.stub{max-width:780px;margin:30px auto;text-align:center;padding:44px 28px}
+.stub .si{width:64px;height:64px;margin:0 auto 18px;border-radius:18px;background:rgba(123,166,163,.1);border:1px solid rgba(123,166,163,.3);display:flex;align-items:center;justify-content:center}
+.stub .si svg{width:30px;height:30px;color:var(--cyan-d)}
+.stub h2{font-size:22px;margin-bottom:8px;color:var(--text)}
+.stub p{color:var(--muted);font-size:14px;max-width:540px;margin:0 auto 18px}
+.stub .ph{display:inline-flex;align-items:center;gap:8px;background:rgba(211,166,86,.12);border:1px solid rgba(211,166,86,.4);color:var(--amber-d);border-radius:999px;padding:6px 15px;font-size:12px;font-weight:700;margin-bottom:24px}
+.stub .flowstrip{justify-content:flex-start;padding-top:0}
+
+/* ---------- TOASTS ---------- */
+#toasts{position:fixed;bottom:20px;right:20px;z-index:90;display:flex;flex-direction:column;gap:10px}
+.toast{display:flex;align-items:center;gap:11px;background:#fbf8ef;border:1px solid var(--line2);border-left:3px solid var(--cyan);border-radius:11px;padding:12px 16px;font-size:13px;max-width:380px;box-shadow:0 12px 40px rgba(64,58,44,.18);animation:tin .3s ease}
+.toast svg{width:16px;height:16px;flex:0 0 16px;color:var(--cyan-d)}
+.toast.success{border-left-color:var(--green)}.toast.success svg{color:var(--green-d)}
+.toast.error{border-left-color:var(--red)}.toast.error svg{color:var(--red-d)}
+@keyframes tin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+@media(max-width:1100px){.stats{grid-template-columns:1fr 1fr}.dash-map-row{grid-template-columns:1fr}.dash-lower{grid-template-columns:1fr}.mods{grid-template-columns:1fr 1fr}.metrics{grid-template-columns:1fr 1fr}}
+@media(max-width:900px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:none}.main{margin-left:0}.mods{grid-template-columns:1fr}.menu-btn{display:inline-flex}.map-body{min-height:380px}}

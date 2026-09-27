@@ -75,13 +75,16 @@ class TemporalPair:
         t2_date: str | date | datetime,
         sensor: str = "sentinel-2",
         pair_id: str | None = None,
+        allow_reversed_dates: bool = False,
     ) -> "TemporalPair":
         first, second = Path(t1_path), Path(t2_path)
         for name, path in (("T1", first), ("T2", second)):
             if not path.is_file():
                 raise TemporalPairError(f"{name} raster does not exist: {path}")
         date1, date2 = _parse_date(t1_date), _parse_date(t2_date)
-        if date1 >= date2:
+        if date1 == date2:
+            raise TemporalPairError("T1 and T2 acquisition dates must differ")
+        if date1 > date2 and not allow_reversed_dates:
             raise TemporalPairError("T1 acquisition date must be earlier than T2")
         grid1, grid2 = RasterGrid.inspect(first), RasterGrid.inspect(second)
         if grid1.crs != grid2.crs:

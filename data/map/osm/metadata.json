@@ -1,0 +1,41 @@
+{
+  "source": "OpenStreetMap",
+  "provider": "Geofabrik",
+  "source_url": "https://download.geofabrik.de/asia/india-latest.osm.pbf",
+  "source_page": "https://download.geofabrik.de/asia/india.html",
+  "source_file": "india-latest.osm.pbf",
+  "downloaded_at": null,
+  "source_file_size_bytes": null,
+  "source_checksum": null,
+  "source_checksum_algorithm": "MD5 (Geofabrik dated sidecar); SHA-256 local verification",
+  "osm_data_timestamp": "2026-09-26T20:22:51Z (Geofabrik page, observed 2026-09-28)",
+  "license": "ODbL 1.0",
+  "attribution": "\u00a9 OpenStreetMap contributors",
+  "region": "India",
+  "bbox": null,
+  "crs": {
+    "canonical": "EPSG:4326",
+    "vector_tiles": "EPSG:3857"
+  },
+  "feature_counts": {
+    "roads": null,
+    "water": null,
+    "places": null,
+    "boundaries": null
+  },
+  "processed_formats": [],
+  "tile_count": null,
+  "processed_size_bytes": null,
+  "prototype_aoi": {
+    "bbox_wsen": [75.79966202098623, 22.754106944804505, 75.8498135819418, 22.800612416259163],
+    "feature_counts": {
+      "roads": null,
+      "water": null,
+      "places": null,
+      "boundaries": null
+    }
+  },
+  "processing_time_seconds": null,
+  "status": "incomplete: full source download and processing not completed",
+  "notes": "Download attempts were stopped before completion due slow/unavailable network access; no partial PBF is retained. No processing tools were available during initial inspection. Null means not measured; it is not a zero count. OSM timestamp is the value reported on Geofabrik's India page at the time of lookup."
+}

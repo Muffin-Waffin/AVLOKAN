@@ -1,0 +1,52 @@
+# Preparation proposal only; no trainer consumes this file yet.
+dataset_root: data/oscd/raw/extracted
+split_manifest: data/oscd/splits.json
+train_locations:
+  - beirut
+  - bercy
+  - bordeaux
+  - cupertino
+  - hongkong
+  - mumbai
+  - nantes
+  - paris
+  - pisa
+  - rennes
+  - saclay_e
+validation_locations:
+  - abudhabi
+  - aguasclaras
+  - beihai
+official_test_policy: excluded_from_training_validation_and_selection
+
+input:
+  bands: [B04, B03, B02]
+  quantification_value: 10000
+  clip_reflectance: [0.0, 1.0]
+  normalize: [-1.0, 1.0]
+  architecture: official_BIT_LEVIR_3_channel_2_class
+
+patches:
+  height: 256
+  width: 256
+  stride: 256
+  order: deterministic_row_major
+  coverage: every_registered_pixel_exactly_once
+  image_edge_padding: reflect_bottom_and_right_to_patch_grid
+  padded_label_pixels: ignored_in_loss_and_metrics
+  mask_resampling: nearest_only_if_required
+  logits_alignment: bilinear_to_input_grid_before_softmax_or_loss
+
+training_proposal:
+  batch_size: 1
+  optimizer: AdamW
+  learning_rate: 0.0001
+  weight_decay: 0.0001
+  epochs: 30
+  seed: 42
+  loss: weighted_BCE_with_logits_plus_soft_Dice
+  bce_weight: 0.5
+  dice_weight: 0.5
+  positive_weight: 46.46
+  positive_weight_source: development_train_pixel_ratio_only
+  checkpoint_directory: models/bit/BIT_OSCD

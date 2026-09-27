@@ -1,0 +1,1709 @@
+python scripts/train_oscd_bit.py --fold 1 --device cuda
+python scripts/train_oscd_bit.py --fold 2 --device cuda
+python scripts/train_oscd_bit.py --fold 3 --device cuda
+python scripts/train_oscd_bit.py --fold 4 --device cuda
+runtime:
+  cuda_version: '13.2'
+  gpu_name: NVIDIA GeForce RTX 5060 Ti
+  gpu_vram_gib: 15.90179443359375
+  requested_device: cuda
+  selected_device: cuda
+  torch_version: 2.12.0+cu132
+location_cross_validation:
+  seed: 42
+  selected_fold: 1
+  folds:
+  - fold: 0
+    train:
+    - abudhabi
+    - aguasclaras
+    - beihai
+    - beirut
+    - bordeaux
+    - cupertino
+    - hongkong
+    - nantes
+    - paris
+    - rennes
+    - saclay_e
+    validation:
+    - bercy
+    - mumbai
+    - pisa
+  - fold: 1
+    train:
+    - aguasclaras
+    - beihai
+    - beirut
+    - bercy
+    - cupertino
+    - hongkong
+    - mumbai
+    - nantes
+    - paris
+    - pisa
+    - saclay_e
+    validation:
+    - abudhabi
+    - bordeaux
+    - rennes
+  - fold: 2
+    train:
+    - abudhabi
+    - beirut
+    - bercy
+    - bordeaux
+    - cupertino
+    - mumbai
+    - nantes
+    - paris
+    - pisa
+    - rennes
+    - saclay_e
+    validation:
+    - aguasclaras
+    - beihai
+    - hongkong
+  - fold: 3
+    train:
+    - abudhabi
+    - aguasclaras
+    - beihai
+    - beirut
+    - bercy
+    - bordeaux
+    - hongkong
+    - mumbai
+    - pisa
+    - rennes
+    - saclay_e
+    validation:
+    - cupertino
+    - nantes
+    - paris
+  - fold: 4
+    train:
+    - abudhabi
+    - aguasclaras
+    - beihai
+    - bercy
+    - bordeaux
+    - cupertino
+    - hongkong
+    - mumbai
+    - nantes
+    - paris
+    - pisa
+    - rennes
+    validation:
+    - beirut
+    - saclay_e
+epoch: 1
+train:
+  bce: 3.161765305679556
+  dice: 0.8165311008541833
+  total: 1.9891482032668697
+  valid_pixels: 18223044.0
+validation:
+  bce: 8.192274202872088
+  dice: 0.935786947280641
+  total: 4.564030575076365
+  valid_pixels: 1056409.0
+epoch: 2
+train:
+  bce: 2.0429001886236025
+  dice: 0.816675220656925
+  total: 1.4297877046402636
+  valid_pixels: 18223044.0
+validation:
+  bce: 5.455793048554715
+  dice: 0.8756692972413928
+  total: 3.1657311728980537
+  valid_pixels: 1056409.0
+epoch: 3
+train:
+  bce: 1.6730822779706378
+  dice: 0.8300659691575325
+  total: 1.2515741235640852
+  valid_pixels: 18223044.0
+validation:
+  bce: 3.6066691604697905
+  dice: 0.8735213828031128
+  total: 2.2400952716364517
+  valid_pixels: 1056409.0
+epoch: 4
+train:
+  bce: 1.2458981352740068
+  dice: 0.8237908408508756
+  total: 1.0348444880624412
+  valid_pixels: 18223044.0
+validation:
+  bce: 2.981725811433702
+  dice: 0.8661685311324486
+  total: 1.9239471712830754
+  valid_pixels: 1056409.0
+epoch: 5
+train:
+  bce: 1.0514807347678228
+  dice: 0.8283559252992218
+  total: 0.9399183300335223
+  valid_pixels: 18223044.0
+validation:
+  bce: 3.0799919506251774
+  dice: 0.8772307553526487
+  total: 1.978611352988913
+  valid_pixels: 1056409.0
+epoch: 6
+train:
+  bce: 0.9214191095365374
+  dice: 0.8292524233686477
+  total: 0.8753357664525925
+  valid_pixels: 18223044.0
+validation:
+  bce: 2.9302915124230777
+  dice: 0.8635906500310767
+  total: 1.8969410812270773
+  valid_pixels: 1056409.0
+epoch: 7
+train:
+  bce: 1.1699591262247433
+  dice: 0.8423644943209314
+  total: 1.0061618102728374
+  valid_pixels: 18223044.0
+validation:
+  bce: 1.722361535615493
+  dice: 0.8678023655864494
+  total: 1.2950819506009712
+  valid_pixels: 1056409.0
+epoch: 8
+train:
+  bce: 0.9541847328810656
+  dice: 0.8426130088646324
+  total: 0.898398870872849
+  valid_pixels: 18223044.0
+validation:
+  bce: 1.5218775939012656
+  dice: 0.8723626422770523
+  total: 1.1971201180891589
+  valid_pixels: 1056409.0
+epoch: 9
+train:
+  bce: 0.8802414312567967
+  dice: 0.8427841627485856
+  total: 0.8615127970026911
+  valid_pixels: 18223044.0
+validation:
+  bce: 1.7352439196367468
+  dice: 0.869324870229406
+  total: 1.3022843949330765
+  valid_pixels: 1056409.0
+epoch: 10
+train:
+  bce: 0.8437128128404756
+  dice: 0.8452871555373239
+  total: 0.8444999841888998
+  valid_pixels: 18223044.0
+validation:
+  bce: 1.358237433355377
+  dice: 0.8824908148973462
+  total: 1.1203641241263615
+  valid_pixels: 1056409.0
+epoch: 11
+train:
+  bce: 0.7953245903311932
+  dice: 0.8450411973376108
+  total: 0.820182893834402
+  valid_pixels: 18223044.0
+validation:
+  bce: 1.4421181469563935
+  dice: 0.8773065796511401
+  total: 1.159712363303767
+  valid_pixels: 1056409.0
+epoch: 12
+train:
+  bce: 0.7667381114376718
+  dice: 0.8435400639366959
+  total: 0.8051390876871838
+  valid_pixels: 18223044.0
+validation:
+  bce: 1.4095084998310063
+  dice: 0.8711903492013402
+  total: 1.1403494245161734
+  valid_pixels: 1056409.0
+epoch: 13
+train:
+  bce: 0.7631058999143375
+  dice: 0.8426053320784841
+  total: 0.8028556159964109
+  valid_pixels: 18223044.0
+validation:
+  bce: 1.5279573132256863
+  dice: 0.8712990159146465
+  total: 1.1996281645701665
+  valid_pixels: 1056409.0
+epoch: 14
+train:
+  bce: 0.7179675277001885
+  dice: 0.8349389824738549
+  total: 0.7764532550870217
+  valid_pixels: 18223044.0
+validation:
+  bce: 1.5382831443154357
+  dice: 0.8661824392510609
+  total: 1.2022327917832483
+  valid_pixels: 1056409.0
+epoch: 15
+train:
+  bce: 0.7046777499894081
+  dice: 0.8286291769176899
+  total: 0.766653463453549
+  valid_pixels: 18223044.0
+validation:
+  bce: 1.4836078718976322
+  dice: 0.8704332841638893
+  total: 1.1770205780307608
+  valid_pixels: 1056409.0
+epoch: 16
+train:
+  bce: 0.7774019994326221
+  dice: 0.8489694974532344
+  total: 0.8131857484429282
+  valid_pixels: 18223044.0
+validation:
+  bce: 1.4105720032786744
+  dice: 0.8760726958627524
+  total: 1.1433223495707134
+  valid_pixels: 1056409.0
+epoch: 17
+train:
+  bce: 0.7443283509133107
+  dice: 0.8445674557614263
+  total: 0.7944479033373686
+  valid_pixels: 18223044.0
+validation:
+  bce: 1.4987309277562906
+  dice: 0.8601348463978583
+  total: 1.1794328870770745
+  valid_pixels: 1056409.0
+epoch: 18
+train:
+  bce: 0.6935962361746
+  dice: 0.835200190983305
+  total: 0.7643982135789524
+  valid_pixels: 18223044.0
+validation:
+  bce: 1.376515764324788
+  dice: 0.8792099735327136
+  total: 1.1278628689287509
+  valid_pixels: 1056409.0
+epoch: 19
+train:
+  bce: 0.710963310343916
+  dice: 0.8348354144305203
+  total: 0.7728993623872182
+  valid_pixels: 18223044.0
+validation:
+  bce: 1.7870852402327813
+  dice: 0.8646994754824175
+  total: 1.3258923578575994
+  valid_pixels: 1056409.0
+epoch: 20
+train:
+  bce: 0.6572878669421824
+  dice: 0.8241967908407789
+  total: 0.7407423288914807
+  valid_pixels: 18223044.0
+validation:
+  bce: 1.7638194051449074
+  dice: 0.8700824458825174
+  total: 1.3169509255137124
+  valid_pixels: 1056409.0
+epoch: 21
+train:
+  bce: 0.6758024100095118
+  dice: 0.8228863525024506
+  total: 0.7493443812559812
+  valid_pixels: 18223044.0
+validation:
+  bce: 1.5065921613553133
+  dice: 0.8626512500375295
+  total: 1.1846217056964214
+  valid_pixels: 1056409.0
+epoch: 22
+train:
+  bce: 0.6188372842499416
+  dice: 0.8059882690604756
+  total: 0.7124127766552086
+  valid_pixels: 18223044.0
+validation:
+  bce: 1.7951129558660863
+  dice: 0.8652610972884693
+  total: 1.3301870265772777
+  valid_pixels: 1056409.0
+epoch: 23
+train:
+  bce: 0.6233724501260962
+  dice: 0.7998522179645635
+  total: 0.7116123340453299
+  valid_pixels: 18223044.0
+validation:
+  bce: 2.0923432776364606
+  dice: 0.8520265141757585
+  total: 1.4721848959061095
+  valid_pixels: 1056409.0
+epoch: 24
+train:
+  bce: 0.5876342016431898
+  dice: 0.7880267565935731
+  total: 0.6878304791183815
+  valid_pixels: 18223044.0
+validation:
+  bce: 1.5644115360470918
+  dice: 0.8526239041361405
+  total: 1.2085177200916162
+  valid_pixels: 1056409.0
+epoch: 25
+train:
+  bce: 0.6149046759880944
+  dice: 0.7900625283606741
+  total: 0.7024836021743843
+  valid_pixels: 18223044.0
+validation:
+  bce: 1.895136402785405
+  dice: 0.8359885969480896
+  total: 1.3655624998667473
+  valid_pixels: 1056409.0
+epoch: 26
+train:
+  bce: 0.6400578631438082
+  dice: 0.7972237223448024
+  total: 0.7186407927443053
+  valid_pixels: 18223044.0
+validation:
+  bce: 1.7613602554370933
+  dice: 0.8661898664342251
+  total: 1.3137750609356593
+  valid_pixels: 1056409.0
+epoch: 27
+train:
+  bce: 0.6525037911511512
+  dice: 0.8094970510816988
+  total: 0.7310004211164249
+  valid_pixels: 18223044.0
+validation:
+  bce: 1.8080095362648216
+  dice: 0.8642721922038378
+  total: 1.3361408642343298
+  valid_pixels: 1056409.0
+epoch: 28
+train:
+  bce: 0.6163512389742366
+  dice: 0.8052965135502012
+  total: 0.7108238762622189
+  valid_pixels: 18223044.0
+validation:
+  bce: 2.3759433802391507
+  dice: 0.8454944321164504
+  total: 1.6107189061778007
+  valid_pixels: 1056409.0
+epoch: 29
+train:
+  bce: 0.5556360672787163
+  dice: 0.7777958517795461
+  total: 0.6667159595291312
+  valid_pixels: 18223044.0
+validation:
+  bce: 2.480586056798621
+  dice: 0.8351095315660747
+  total: 1.657847794182348
+  valid_pixels: 1056409.0
+epoch: 30
+train:
+  bce: 0.5455085609304531
+  dice: 0.7670366834956296
+  total: 0.6562726222130413
+  valid_pixels: 18223044.0
+validation:
+  bce: 2.912454333943211
+  dice: 0.8421340791851369
+  total: 1.877294206564174
+  valid_pixels: 1056409.0
+
+    cuda_version: '13.2'
+  gpu_name: NVIDIA GeForce RTX 5060 Ti
+  gpu_vram_gib: 15.90179443359375
+  requested_device: cuda
+  selected_device: cuda
+  torch_version: 2.12.0+cu132
+location_cross_validation:
+  seed: 42
+  selected_fold: 2
+  folds:
+  - fold: 0
+    train:
+    - abudhabi
+    - aguasclaras
+    - beihai
+    - beirut
+    - bordeaux
+    - cupertino
+    - hongkong
+    - nantes
+    - paris
+    - rennes
+    - saclay_e
+    validation:
+    - bercy
+    - mumbai
+    - pisa
+  - fold: 1
+    train:
+    - aguasclaras
+    - beihai
+    - beirut
+    - bercy
+    - cupertino
+    - hongkong
+    - mumbai
+    - nantes
+    - paris
+    - pisa
+    - saclay_e
+    validation:
+    - abudhabi
+    - bordeaux
+    - rennes
+  - fold: 2
+    train:
+    - abudhabi
+    - beirut
+    - bercy
+    - bordeaux
+    - cupertino
+    - mumbai
+    - nantes
+    - paris
+    - pisa
+    - rennes
+    - saclay_e
+    validation:
+    - aguasclaras
+    - beihai
+    - hongkong
+  - fold: 3
+    train:
+    - abudhabi
+    - aguasclaras
+    - beihai
+    - beirut
+    - bercy
+    - bordeaux
+    - hongkong
+    - mumbai
+    - pisa
+    - rennes
+    - saclay_e
+    validation:
+    - cupertino
+    - nantes
+    - paris
+  - fold: 4
+    train:
+    - abudhabi
+    - aguasclaras
+    - beihai
+    - bercy
+    - bordeaux
+    - cupertino
+    - hongkong
+    - mumbai
+    - nantes
+    - paris
+    - pisa
+    - rennes
+    validation:
+    - beirut
+    - saclay_e
+epoch: 1
+train:
+  bce: 3.56568590228577
+  dice: 0.8299886814507811
+  total: 2.1978372918682756
+  valid_pixels: 17285900.0
+validation:
+  bce: 3.1300050526680607
+  dice: 0.813023091073866
+  total: 1.9715140718709634
+  valid_pixels: 1318919.0
+epoch: 2
+train:
+  bce: 2.1894923890704336
+  dice: 0.8362493808810255
+  total: 1.5128708849757295
+  valid_pixels: 17285900.0
+validation:
+  bce: 2.7404687965561636
+  dice: 0.8525062113451625
+  total: 1.796487503950663
+  valid_pixels: 1318919.0
+epoch: 3
+train:
+  bce: 1.3000968955806536
+  dice: 0.8403380700881053
+  total: 1.0702174828343796
+  valid_pixels: 17285900.0
+validation:
+  bce: 1.744797601469957
+  dice: 0.8840587573122537
+  total: 1.3144281793911055
+  valid_pixels: 1318919.0
+epoch: 4
+train:
+  bce: 0.9364966102482231
+  dice: 0.8516451589538498
+  total: 0.8940708846010365
+  valid_pixels: 17285900.0
+validation:
+  bce: 1.3540316506997234
+  dice: 0.8930161710966747
+  total: 1.1235239108981991
+  valid_pixels: 1318919.0
+epoch: 5
+train:
+  bce: 0.8627424049980043
+  dice: 0.8598329725202467
+  total: 0.8612876887591254
+  valid_pixels: 17285900.0
+validation:
+  bce: 1.1712322116971805
+  dice: 0.8876585638797475
+  total: 1.029445387788464
+  valid_pixels: 1318919.0
+epoch: 6
+train:
+  bce: 0.8350752297265052
+  dice: 0.8605455617415985
+  total: 0.8478103957340518
+  valid_pixels: 17285900.0
+validation:
+  bce: 1.2205262820580807
+  dice: 0.8878922108045669
+  total: 1.0542092464313237
+  valid_pixels: 1318919.0
+epoch: 7
+train:
+  bce: 0.7717891629535475
+  dice: 0.8522577738283309
+  total: 0.8120234683909392
+  valid_pixels: 17285900.0
+validation:
+  bce: 1.192690546477739
+  dice: 0.8828688419889981
+  total: 1.0377796942333686
+  valid_pixels: 1318919.0
+epoch: 8
+train:
+  bce: 0.7337139365940492
+  dice: 0.8394511606082278
+  total: 0.7865825486011384
+  valid_pixels: 17285900.0
+validation:
+  bce: 1.3602573790536214
+  dice: 0.8965753696392957
+  total: 1.1284163743464586
+  valid_pixels: 1318919.0
+epoch: 9
+train:
+  bce: 0.7179874820235975
+  dice: 0.8331008144649391
+  total: 0.7755441482442683
+  valid_pixels: 17285900.0
+validation:
+  bce: 1.3778042159923707
+  dice: 0.895956900859099
+  total: 1.1368805584257349
+  valid_pixels: 1318919.0
+epoch: 10
+train:
+  bce: 0.6823061430323845
+  dice: 0.8202839676209426
+  total: 0.7512950553266635
+  valid_pixels: 17285900.0
+validation:
+  bce: 1.3929245942481248
+  dice: 0.883588610108199
+  total: 1.138256602178162
+  valid_pixels: 1318919.0
+epoch: 11
+train:
+  bce: 0.7511433610894125
+  dice: 0.8327759430002248
+  total: 0.7919596520448187
+  valid_pixels: 17285900.0
+validation:
+  bce: 1.5143430294330926
+  dice: 0.9005103027971466
+  total: 1.2074266661151196
+  valid_pixels: 1318919.0
+epoch: 12
+train:
+  bce: 0.6860960461234222
+  dice: 0.8261185183167647
+  total: 0.7561072822200935
+  valid_pixels: 17285900.0
+validation:
+  bce: 1.2564828416434808
+  dice: 0.8812790182068225
+  total: 1.0688809299251516
+  valid_pixels: 1318919.0
+epoch: 13
+train:
+  bce: 0.6632970205504275
+  dice: 0.8102700643893362
+  total: 0.7367835424698819
+  valid_pixels: 17285900.0
+validation:
+  bce: 1.2899620256177389
+  dice: 0.8805209336986577
+  total: 1.0852414796581984
+  valid_pixels: 1318919.0
+epoch: 14
+train:
+  bce: 0.6269032826426211
+  dice: 0.7992717311650124
+  total: 0.7130875069038167
+  valid_pixels: 17285900.0
+validation:
+  bce: 1.4573565867602352
+  dice: 0.8835772272958006
+  total: 1.1704669070280178
+  valid_pixels: 1318919.0
+epoch: 15
+train:
+  bce: 0.6328122920973549
+  dice: 0.7936494097049102
+  total: 0.7132308509011325
+  valid_pixels: 17285900.0
+validation:
+  bce: 1.5267152625248286
+  dice: 0.8971778792473499
+  total: 1.2119465708860893
+  valid_pixels: 1318919.0
+epoch: 16
+train:
+  bce: 0.6505299935168253
+  dice: 0.804064247183461
+  total: 0.7272971203501432
+  valid_pixels: 17285900.0
+validation:
+  bce: 1.3153088742927654
+  dice: 0.8507673513497945
+  total: 1.08303811282128
+  valid_pixels: 1318919.0
+epoch: 17
+train:
+  bce: 0.6145135028874024
+  dice: 0.793640138320969
+  total: 0.7040768206041856
+  valid_pixels: 17285900.0
+validation:
+  bce: 1.26173576312539
+  dice: 0.8664476070326005
+  total: 1.0640916850789952
+  valid_pixels: 1318919.0
+epoch: 18
+train:
+  bce: 0.5803124748117438
+  dice: 0.7828155973439994
+  total: 0.6815640360778716
+  valid_pixels: 17285900.0
+validation:
+  bce: 1.459081101360003
+  dice: 0.8551197058839611
+  total: 1.157100403621982
+  valid_pixels: 1318919.0
+epoch: 19
+train:
+  bce: 0.6352931332226552
+  dice: 0.7970227144279589
+  total: 0.7161579238253071
+  valid_pixels: 17285900.0
+validation:
+  bce: 1.3957146309006294
+  dice: 0.8395782750667329
+  total: 1.1176464529836811
+  valid_pixels: 1318919.0
+epoch: 20
+train:
+  bce: 0.5707569850361643
+  dice: 0.7827284282260114
+  total: 0.6767427066310878
+  valid_pixels: 17285900.0
+validation:
+  bce: 1.6430226192813964
+  dice: 0.8951218522680295
+  total: 1.269072235774713
+  valid_pixels: 1318919.0
+epoch: 21
+train:
+  bce: 0.5343045869852406
+  dice: 0.7650038894451736
+  total: 0.6496542382152071
+  valid_pixels: 17285900.0
+validation:
+  bce: 1.6056001680574767
+  dice: 0.8401283162517039
+  total: 1.2228642421545903
+  valid_pixels: 1318919.0
+epoch: 22
+train:
+  bce: 0.5058087920537632
+  dice: 0.7498875789735053
+  total: 0.6278481855136342
+  valid_pixels: 17285900.0
+validation:
+  bce: 1.8855795876787431
+  dice: 0.8754276865173902
+  total: 1.3805036370980668
+  valid_pixels: 1318919.0
+epoch: 23
+train:
+  bce: 0.5406973910571442
+  dice: 0.7483296095490805
+  total: 0.6445135003031124
+  valid_pixels: 17285900.0
+validation:
+  bce: 1.7575606109742723
+  dice: 0.8598195622248299
+  total: 1.308690086599551
+  valid_pixels: 1318919.0
+epoch: 24
+train:
+  bce: 0.530931745609164
+  dice: 0.7486148166101896
+  total: 0.6397732811096768
+  valid_pixels: 17285900.0
+validation:
+  bce: 1.6601807116765477
+  dice: 0.8734459712844604
+  total: 1.266813341480504
+  valid_pixels: 1318919.0
+epoch: 25
+train:
+  bce: 0.486726079425011
+  dice: 0.735286487530507
+  total: 0.611006283477759
+  valid_pixels: 17285900.0
+validation:
+  bce: 1.6817483654231142
+  dice: 0.8444166144687678
+  total: 1.263082489945941
+  valid_pixels: 1318919.0
+epoch: 26
+train:
+  bce: 0.46179269921831423
+  dice: 0.7125033570001847
+  total: 0.5871480281092495
+  valid_pixels: 17285900.0
+validation:
+  bce: 2.06816434359827
+  dice: 0.8518176246521731
+  total: 1.4599909841252217
+  valid_pixels: 1318919.0
+epoch: 27
+train:
+  bce: 0.46978833973223266
+  dice: 0.7179813321647843
+  total: 0.5938848359485085
+  valid_pixels: 17285900.0
+validation:
+  bce: 2.059231857882185
+  dice: 0.8818683577371935
+  total: 1.4705501078096892
+  valid_pixels: 1318919.0
+epoch: 28
+train:
+  bce: 0.42386541541990846
+  dice: 0.6907302175578074
+  total: 0.5572978164888579
+  valid_pixels: 17285900.0
+validation:
+  bce: 2.2731446398474207
+  dice: 0.8699927883341301
+  total: 1.5715687140907755
+  valid_pixels: 1318919.0
+epoch: 29
+train:
+  bce: 0.4287237225824114
+  dice: 0.6812238727969115
+  total: 0.5549737976896615
+  valid_pixels: 17285900.0
+validation:
+  bce: 2.555438185048466
+  dice: 0.8428056843307559
+  total: 1.699121934689611
+  valid_pixels: 1318919.0
+epoch: 30
+train:
+  bce: 0.4650453840580284
+  dice: 0.7019014598120115
+  total: 0.5834734219350199
+  valid_pixels: 17285900.0
+validation:
+  bce: 2.022092963607146
+  dice: 0.8881351289468835
+  total: 1.4551140462770147
+  valid_pixels: 1318919.0
+
+runtime:
+  cuda_version: '13.2'
+  gpu_name: NVIDIA GeForce RTX 5060 Ti
+  gpu_vram_gib: 15.90179443359375
+  requested_device: cuda
+  selected_device: cuda
+  torch_version: 2.12.0+cu132
+location_cross_validation:
+  seed: 42
+  selected_fold: 3
+  folds:
+  - fold: 0
+    train:
+    - abudhabi
+    - aguasclaras
+    - beihai
+    - beirut
+    - bordeaux
+    - cupertino
+    - hongkong
+    - nantes
+    - paris
+    - rennes
+    - saclay_e
+    validation:
+    - bercy
+    - mumbai
+    - pisa
+  - fold: 1
+    train:
+    - aguasclaras
+    - beihai
+    - beirut
+    - bercy
+    - cupertino
+    - hongkong
+    - mumbai
+    - nantes
+    - paris
+    - pisa
+    - saclay_e
+    validation:
+    - abudhabi
+    - bordeaux
+    - rennes
+  - fold: 2
+    train:
+    - abudhabi
+    - beirut
+    - bercy
+    - bordeaux
+    - cupertino
+    - mumbai
+    - nantes
+    - paris
+    - pisa
+    - rennes
+    - saclay_e
+    validation:
+    - aguasclaras
+    - beihai
+    - hongkong
+  - fold: 3
+    train:
+    - abudhabi
+    - aguasclaras
+    - beihai
+    - beirut
+    - bercy
+    - bordeaux
+    - hongkong
+    - mumbai
+    - pisa
+    - rennes
+    - saclay_e
+    validation:
+    - cupertino
+    - nantes
+    - paris
+  - fold: 4
+    train:
+    - abudhabi
+    - aguasclaras
+    - beihai
+    - bercy
+    - bordeaux
+    - cupertino
+    - hongkong
+    - mumbai
+    - nantes
+    - paris
+    - pisa
+    - rennes
+    validation:
+    - beirut
+    - saclay_e
+epoch: 1
+train:
+  bce: 4.2098176803926926
+  dice: 0.8223300369917437
+  total: 2.5160738586922182
+  valid_pixels: 17459400.0
+validation:
+  bce: 1.341712862167847
+  dice: 0.759504058517414
+  total: 1.0506084603426304
+  valid_pixels: 1262744.0
+epoch: 2
+train:
+  bce: 2.7126934121756983
+  dice: 0.8322332531814249
+  total: 1.7724633326785617
+  valid_pixels: 17459400.0
+validation:
+  bce: 1.013287094447888
+  dice: 0.8058676169190298
+  total: 0.9095773556834589
+  valid_pixels: 1262744.0
+epoch: 3
+train:
+  bce: 1.7409786573970438
+  dice: 0.8383623885388412
+  total: 1.2896705229679424
+  valid_pixels: 17459400.0
+validation:
+  bce: 0.7596231813612587
+  dice: 0.7942383165952608
+  total: 0.7769307489782598
+  valid_pixels: 1262744.0
+epoch: 4
+train:
+  bce: 1.275244762100496
+  dice: 0.8583600529245229
+  total: 1.0668024075125095
+  valid_pixels: 17459400.0
+validation:
+  bce: 0.6086242674125765
+  dice: 0.8263925587051008
+  total: 0.7175084130588386
+  valid_pixels: 1262744.0
+epoch: 5
+train:
+  bce: 1.1334405577496711
+  dice: 0.8777275050675551
+  total: 1.005584031408613
+  valid_pixels: 17459400.0
+validation:
+  bce: 0.6713995273362646
+  dice: 0.8707687790207461
+  total: 0.7710841531785053
+  valid_pixels: 1262744.0
+epoch: 6
+train:
+  bce: 1.0475257306593981
+  dice: 0.8855397680952838
+  total: 0.966532749377341
+  valid_pixels: 17459400.0
+validation:
+  bce: 0.5981055222770351
+  dice: 0.8671246013557037
+  total: 0.7326150618163694
+  valid_pixels: 1262744.0
+epoch: 7
+train:
+  bce: 1.0377294374182757
+  dice: 0.8844567688337219
+  total: 0.9610931031259988
+  valid_pixels: 17459400.0
+validation:
+  bce: 0.6796323451999595
+  dice: 0.8887057719185151
+  total: 0.7841690585592374
+  valid_pixels: 1262744.0
+epoch: 8
+train:
+  bce: 1.0142457219938403
+  dice: 0.8857652682664846
+  total: 0.9500054951301624
+  valid_pixels: 17459400.0
+validation:
+  bce: 0.6065435762695951
+  dice: 0.8634823751090676
+  total: 0.7350129756893313
+  valid_pixels: 1262744.0
+epoch: 9
+train:
+  bce: 0.9664009001126754
+  dice: 0.876953367657493
+  total: 0.9216771338850842
+  valid_pixels: 17459400.0
+validation:
+  bce: 0.6173992172661197
+  dice: 0.8589126972279627
+  total: 0.7381559572470412
+  valid_pixels: 1262744.0
+epoch: 10
+train:
+  bce: 0.9319760380232117
+  dice: 0.8723140630190297
+  total: 0.9021450505211207
+  valid_pixels: 17459400.0
+validation:
+  bce: 0.5612010386692168
+  dice: 0.849292036868825
+  total: 0.7052465377690209
+  valid_pixels: 1262744.0
+epoch: 11
+train:
+  bce: 0.9220546178333685
+  dice: 0.8671319449978523
+  total: 0.8945932814156103
+  valid_pixels: 17459400.0
+validation:
+  bce: 0.6258281875777302
+  dice: 0.8528308065061826
+  total: 0.7393294970419564
+  valid_pixels: 1262744.0
+epoch: 12
+train:
+  bce: 0.887534445812945
+  dice: 0.8629549434595224
+  total: 0.8752446946362338
+  valid_pixels: 17459400.0
+validation:
+  bce: 0.5918261646188993
+  dice: 0.8630907645440724
+  total: 0.7274584645814859
+  valid_pixels: 1262744.0
+epoch: 13
+train:
+  bce: 0.8482492396824398
+  dice: 0.8520657799630045
+  total: 0.8501575098227221
+  valid_pixels: 17459400.0
+validation:
+  bce: 0.5803215374652383
+  dice: 0.8084928379753575
+  total: 0.694407187720298
+  valid_pixels: 1262744.0
+epoch: 14
+train:
+  bce: 0.8554965496606997
+  dice: 0.8520567838453622
+  total: 0.8537766667530309
+  valid_pixels: 17459400.0
+validation:
+  bce: 0.5671227842643554
+  dice: 0.8218327750484806
+  total: 0.694477779656418
+  valid_pixels: 1262744.0
+epoch: 15
+train:
+  bce: 0.808041193324249
+  dice: 0.8427732095230362
+  total: 0.8254072014236427
+  valid_pixels: 17459400.0
+validation:
+  bce: 0.5705084419626295
+  dice: 0.8205727131872032
+  total: 0.6955405775749164
+  valid_pixels: 1262744.0
+epoch: 16
+train:
+  bce: 0.8145775358569264
+  dice: 0.8400781226336069
+  total: 0.8273278292452666
+  valid_pixels: 17459400.0
+validation:
+  bce: 0.5448355077530359
+  dice: 0.8098933366294492
+  total: 0.6773644221912425
+  valid_pixels: 1262744.0
+epoch: 17
+train:
+  bce: 0.7595947507650979
+  dice: 0.8308867854916681
+  total: 0.795240768128383
+  valid_pixels: 17459400.0
+validation:
+  bce: 0.5519098974297278
+  dice: 0.7857951401159275
+  total: 0.6688525187728277
+  valid_pixels: 1262744.0
+epoch: 18
+train:
+  bce: 0.7823414499666242
+  dice: 0.8305263000965933
+  total: 0.8064338750316088
+  valid_pixels: 17459400.0
+validation:
+  bce: 0.5721558362796318
+  dice: 0.7781399128406277
+  total: 0.6751478745601298
+  valid_pixels: 1262744.0
+epoch: 19
+train:
+  bce: 0.7819245027739815
+  dice: 0.8298494998961939
+  total: 0.8058870013350877
+  valid_pixels: 17459400.0
+validation:
+  bce: 0.5824729368888069
+  dice: 0.7891349543311492
+  total: 0.685803945609978
+  valid_pixels: 1262744.0
+epoch: 20
+train:
+  bce: 0.9299337799484075
+  dice: 0.8570824205520027
+  total: 0.8935081002502051
+  valid_pixels: 17459400.0
+validation:
+  bce: 0.5440525575551551
+  dice: 0.8614575966111283
+  total: 0.7027550770831417
+  valid_pixels: 1262744.0
+epoch: 21
+train:
+  bce: 0.9129765008983439
+  dice: 0.868088852388974
+  total: 0.890532676643659
+  valid_pixels: 17459400.0
+validation:
+  bce: 0.5160336354001438
+  dice: 0.8389434955324228
+  total: 0.6774885654662832
+  valid_pixels: 1262744.0
+epoch: 22
+train:
+  bce: 0.8514533122129858
+  dice: 0.8575770424057211
+  total: 0.8545151773093534
+  valid_pixels: 17459400.0
+validation:
+  bce: 0.5327466242277572
+  dice: 0.8291807425788644
+  total: 0.6809636834033108
+  valid_pixels: 1262744.0
+epoch: 23
+train:
+  bce: 0.8020445330802786
+  dice: 0.8460731781132278
+  total: 0.8240588555967532
+  valid_pixels: 17459400.0
+validation:
+  bce: 0.5025286208637496
+  dice: 0.8063833549729936
+  total: 0.6544559879183716
+  valid_pixels: 1262744.0
+epoch: 24
+train:
+  bce: 0.7535568492101793
+  dice: 0.8326226071387188
+  total: 0.7930897281744491
+  valid_pixels: 17459400.0
+validation:
+  bce: 0.5327896393361301
+  dice: 0.7803242272352524
+  total: 0.6565569332856913
+  valid_pixels: 1262744.0
+epoch: 25
+train:
+  bce: 0.7197301435241882
+  dice: 0.821532214032095
+  total: 0.7706311787781416
+  valid_pixels: 17459400.0
+validation:
+  bce: 0.5432858959790179
+  dice: 0.7675793292125608
+  total: 0.6554326125957893
+  valid_pixels: 1262744.0
+epoch: 26
+train:
+  bce: 0.6832155969888491
+  dice: 0.8076271418284691
+  total: 0.7454213694086591
+  valid_pixels: 17459400.0
+validation:
+  bce: 0.6805525445754134
+  dice: 0.7360016036816392
+  total: 0.7082770741285263
+  valid_pixels: 1262744.0
+epoch: 27
+train:
+  bce: 0.6640062614459452
+  dice: 0.7973862519977002
+  total: 0.7306962567218227
+  valid_pixels: 17459400.0
+validation:
+  bce: 0.6103153242384288
+  dice: 0.736519514931826
+  total: 0.6734174195851275
+  valid_pixels: 1262744.0
+epoch: 28
+train:
+  bce: 0.6279453234372697
+  dice: 0.7848351172669006
+  total: 0.7063902203520851
+  valid_pixels: 17459400.0
+validation:
+  bce: 0.5931681756450097
+  dice: 0.7555238910763931
+  total: 0.6743460333607014
+  valid_pixels: 1262744.0
+epoch: 29
+train:
+  bce: 0.6619559811231834
+  dice: 0.7904607397696657
+  total: 0.7262083604464246
+  valid_pixels: 17459400.0
+validation:
+  bce: 0.6538815964561477
+  dice: 0.7352089316667962
+  total: 0.694545264061472
+  valid_pixels: 1262744.0
+epoch: 30
+train:
+  bce: 0.5951573503688206
+  dice: 0.7710280676009251
+  total: 0.6830927089848728
+  valid_pixels: 17459400.0
+validation:
+  bce: 0.6892526730536587
+  dice: 0.728857870069409
+  total: 0.7090552715615339
+  valid_pixels: 1262744.0
+runtime:
+  cuda_version: '13.2'
+  gpu_name: NVIDIA GeForce RTX 5060 Ti
+  gpu_vram_gib: 15.90179443359375
+  requested_device: cuda
+  selected_device: cuda
+  torch_version: 2.12.0+cu132
+location_cross_validation:
+  seed: 42
+  selected_fold: 4
+  folds:
+  - fold: 0
+    train:
+    - abudhabi
+    - aguasclaras
+    - beihai
+    - beirut
+    - bordeaux
+    - cupertino
+    - hongkong
+    - nantes
+    - paris
+    - rennes
+    - saclay_e
+    validation:
+    - bercy
+    - mumbai
+    - pisa
+  - fold: 1
+    train:
+    - aguasclaras
+    - beihai
+    - beirut
+    - bercy
+    - cupertino
+    - hongkong
+    - mumbai
+    - nantes
+    - paris
+    - pisa
+    - saclay_e
+    validation:
+    - abudhabi
+    - bordeaux
+    - rennes
+  - fold: 2
+    train:
+    - abudhabi
+    - beirut
+    - bercy
+    - bordeaux
+    - cupertino
+    - mumbai
+    - nantes
+    - paris
+    - pisa
+    - rennes
+    - saclay_e
+    validation:
+    - aguasclaras
+    - beihai
+    - hongkong
+  - fold: 3
+    train:
+    - abudhabi
+    - aguasclaras
+    - beihai
+    - beirut
+    - bercy
+    - bordeaux
+    - hongkong
+    - mumbai
+    - pisa
+    - rennes
+    - saclay_e
+    validation:
+    - cupertino
+    - nantes
+    - paris
+  - fold: 4
+    train:
+    - abudhabi
+    - aguasclaras
+    - beihai
+    - bercy
+    - bordeaux
+    - cupertino
+    - hongkong
+    - mumbai
+    - nantes
+    - paris
+    - pisa
+    - rennes
+    validation:
+    - beirut
+    - saclay_e
+epoch: 1
+train:
+  bce: 4.074466487502511
+  dice: 0.8215258128057545
+  total: 2.447996150154133
+  valid_pixels: 15685064.0
+validation:
+  bce: 1.376655912970074
+  dice: 0.8983697163432042
+  total: 1.1375128146566391
+  valid_pixels: 1702232.0
+epoch: 2
+train:
+  bce: 2.5727047406992303
+  dice: 0.8437390752588972
+  total: 1.7082219079790637
+  valid_pixels: 15685064.0
+validation:
+  bce: 1.5324776637700899
+  dice: 0.9235830227886328
+  total: 1.2280303432793613
+  valid_pixels: 1702232.0
+epoch: 3
+train:
+  bce: 1.5781859144982449
+  dice: 0.8609648244534924
+  total: 1.2195753694758686
+  valid_pixels: 15685064.0
+validation:
+  bce: 1.1570477852754502
+  dice: 0.9238912911529231
+  total: 1.0404695382141866
+  valid_pixels: 1702232.0
+epoch: 4
+train:
+  bce: 1.159220696397169
+  dice: 0.8819173210802795
+  total: 1.0205690087387242
+  valid_pixels: 15685064.0
+validation:
+  bce: 1.4184392736593412
+  dice: 0.9329021261040266
+  total: 1.175670699881684
+  valid_pixels: 1702232.0
+epoch: 5
+train:
+  bce: 1.0338657456501847
+  dice: 0.8856928571766072
+  total: 0.959779301413396
+  valid_pixels: 15685064.0
+validation:
+  bce: 1.6153415057131608
+  dice: 0.9346086737692009
+  total: 1.274975089741181
+  valid_pixels: 1702232.0
+epoch: 6
+train:
+  bce: 1.020550540355004
+  dice: 0.8904460440900017
+  total: 0.9554982922225028
+  valid_pixels: 15685064.0
+validation:
+  bce: 1.2914792215754265
+  dice: 0.9301151716108131
+  total: 1.1107971965931198
+  valid_pixels: 1702232.0
+epoch: 7
+train:
+  bce: 0.9671705928272434
+  dice: 0.8874556238511535
+  total: 0.9273131083391984
+  valid_pixels: 15685064.0
+validation:
+  bce: 1.3346621833771044
+  dice: 0.928787442381909
+  total: 1.1317248128795068
+  valid_pixels: 1702232.0
+epoch: 8
+train:
+  bce: 0.9205182499017195
+  dice: 0.8786871644450778
+  total: 0.8996027071733986
+  valid_pixels: 15685064.0
+validation:
+  bce: 1.3420606979633944
+  dice: 0.9270715328590271
+  total: 1.1345661154112108
+  valid_pixels: 1702232.0
+epoch: 9
+train:
+  bce: 0.9980321103354014
+  dice: 0.8873736543648543
+  total: 0.9427028823501278
+  valid_pixels: 15685064.0
+validation:
+  bce: 1.6204719698534042
+  dice: 0.9304694981411883
+  total: 1.2754707339972962
+  valid_pixels: 1702232.0
+epoch: 10
+train:
+  bce: 1.0091013307266208
+  dice: 0.8870182169965566
+  total: 0.9480597738615887
+  valid_pixels: 15685064.0
+validation:
+  bce: 1.283985472995437
+  dice: 0.9219154939879288
+  total: 1.102950483491683
+  valid_pixels: 1702232.0
+epoch: 11
+train:
+  bce: 0.9067581896286674
+  dice: 0.8791228315914965
+  total: 0.892940510610082
+  valid_pixels: 15685064.0
+validation:
+  bce: 1.5041329224636206
+  dice: 0.9252715358510004
+  total: 1.2147022291573104
+  valid_pixels: 1702232.0
+epoch: 12
+train:
+  bce: 0.8518881743406005
+  dice: 0.8682708942388084
+  total: 0.8600795342897045
+  valid_pixels: 15685064.0
+validation:
+  bce: 1.0931389433659748
+  dice: 0.9151417861995516
+  total: 1.0041403647827631
+  valid_pixels: 1702232.0
+epoch: 13
+train:
+  bce: 0.8159290651296246
+  dice: 0.8570181281886031
+  total: 0.8364735966591139
+  valid_pixels: 15685064.0
+validation:
+  bce: 1.1060342299845145
+  dice: 0.9131075521570797
+  total: 1.0095708910707972
+  valid_pixels: 1702232.0
+epoch: 14
+train:
+  bce: 0.9104701355904347
+  dice: 0.8727404441465444
+  total: 0.8916052898684895
+  valid_pixels: 15685064.0
+validation:
+  bce: 1.2678613666887981
+  dice: 0.922349265678778
+  total: 1.095105316183788
+  valid_pixels: 1702232.0
+epoch: 15
+train:
+  bce: 0.8614429167688492
+  dice: 0.8712169245787752
+  total: 0.8663299206738122
+  valid_pixels: 15685064.0
+validation:
+  bce: 1.0745782885742992
+  dice: 0.9160019127508332
+  total: 0.9952901006625662
+  valid_pixels: 1702232.0
+epoch: 16
+train:
+  bce: 0.8479493831202932
+  dice: 0.8628670859674447
+  total: 0.8554082345438689
+  valid_pixels: 15685064.0
+validation:
+  bce: 1.0660774044111643
+  dice: 0.9129069024272111
+  total: 0.9894921534191876
+  valid_pixels: 1702232.0
+epoch: 17
+train:
+  bce: 0.8403685375174774
+  dice: 0.8598837064961875
+  total: 0.8501261220068325
+  valid_pixels: 15685064.0
+validation:
+  bce: 1.1892208701942508
+  dice: 0.9187211204326068
+  total: 1.0539709953134289
+  valid_pixels: 1702232.0
+epoch: 18
+train:
+  bce: 0.7960293526621917
+  dice: 0.8518172802926154
+  total: 0.8239233164774036
+  valid_pixels: 15685064.0
+validation:
+  bce: 1.3613882752312478
+  dice: 0.9252138579888325
+  total: 1.1433010666100403
+  valid_pixels: 1702232.0
+epoch: 19
+train:
+  bce: 0.7688818218402289
+  dice: 0.8431596899093676
+  total: 0.8060207558747983
+  valid_pixels: 15685064.0
+validation:
+  bce: 1.1519730160487451
+  dice: 0.9175544354965772
+  total: 1.0347637257726612
+  valid_pixels: 1702232.0
+epoch: 20
+train:
+  bce: 0.747888881962337
+  dice: 0.8349420757043713
+  total: 0.7914154788333542
+  valid_pixels: 15685064.0
+validation:
+  bce: 1.0985486838130945
+  dice: 0.9123886694935939
+  total: 1.005468676653344
+  valid_pixels: 1702232.0
+epoch: 21
+train:
+  bce: 0.7006586919540507
+  dice: 0.8231993270443092
+  total: 0.76192900949918
+  valid_pixels: 15685064.0
+validation:
+  bce: 1.1602383535424923
+  dice: 0.9117405779042292
+  total: 1.0359894657233608
+  valid_pixels: 1702232.0
+epoch: 22
+train:
+  bce: 0.6861330654031305
+  dice: 0.8149659021683273
+  total: 0.7505494837857289
+  valid_pixels: 15685064.0
+validation:
+  bce: 1.170027827343012
+  dice: 0.9121301064847348
+  total: 1.0410789669138734
+  valid_pixels: 1702232.0
+epoch: 23
+train:
+  bce: 0.7729577654097355
+  dice: 0.8296103969385041
+  total: 0.8012840811741198
+  valid_pixels: 15685064.0
+validation:
+  bce: 1.0110757967677695
+  dice: 0.9096861372306616
+  total: 0.9603809669992156
+  valid_pixels: 1702232.0
+epoch: 24
+train:
+  bce: 0.7274928829080061
+  dice: 0.8306148258326008
+  total: 0.7790538543703034
+  valid_pixels: 15685064.0
+validation:
+  bce: 1.3850034239971403
+  dice: 0.9224065885461346
+  total: 1.1537050062716374
+  valid_pixels: 1702232.0
+epoch: 25
+train:
+  bce: 0.6752306565240619
+  dice: 0.8110806117375701
+  total: 0.743155634130816
+  valid_pixels: 15685064.0
+validation:
+  bce: 1.0895269927448565
+  dice: 0.9105895302806057
+  total: 1.0000582615127311
+  valid_pixels: 1702232.0
+epoch: 26
+train:
+  bce: 0.6378285328301582
+  dice: 0.7974361559678927
+  total: 0.7176323443990255
+  valid_pixels: 15685064.0
+validation:
+  bce: 1.2327862475309073
+  dice: 0.9142494729249329
+  total: 1.07351786022792
+  valid_pixels: 1702232.0
+epoch: 27
+train:
+  bce: 0.6401659588574666
+  dice: 0.7828412665224642
+  total: 0.7115036126899654
+  valid_pixels: 15685064.0
+validation:
+  bce: 1.1744270118356002
+  dice: 0.9123703287145595
+  total: 1.0433986702750797
+  valid_pixels: 1702232.0
+epoch: 28
+train:
+  bce: 0.6968028027388699
+  dice: 0.804357558282921
+  total: 0.7505801805108954
+  valid_pixels: 15685064.0
+validation:
+  bce: 1.0013837576561244
+  dice: 0.9008831019449798
+  total: 0.951133429800552
+  valid_pixels: 1702232.0
+epoch: 29
+train:
+  bce: 0.6647156538828389
+  dice: 0.8006479138151431
+  total: 0.732681783848991
+  valid_pixels: 15685064.0
+validation:
+  bce: 1.2752082415267867
+  dice: 0.9121653199094003
+  total: 1.0936867807180934
+  valid_pixels: 1702232.0
+epoch: 30
+train:
+  bce: 0.6408284736050964
+  dice: 0.7922002632749816
+  total: 0.716514368440039
+  valid_pixels: 15685064.0
+validation:
+  bce: 1.2600450765707907
+  dice: 0.914640835664167
+  total: 1.0873429561174788
+  valid_pixels: 1702232.0

@@ -1,0 +1,24 @@
+# Explicit application demo choice; this is not a model ranking claim.
+# Fold 0 checkpoint is selected as the deterministic AVLOKAN prototype
+# demonstration checkpoint. This is not a model-selection claim.
+checkpoint: models/bit/BIT_OSCD_CV5/fold_0/best_oscd_bit.pt
+checkpoint_role: prototype_demo_checkpoint
+checkpoint_sha256: 8a75efe679aab0d1624888906cf3c9ed756772b7f3e92d439b7d0fb0fe3cac4b
+device: auto
+threshold: 0.96
+minimum_component_area: 32
+morphology: none
+quality_mask: nodata_and_nonfinite
+output_directory: data/processed/change_analysis
+save_probability: true
+save_raw_mask: true
+save_final_mask: true
+raw_mask_threshold: 0.50
+remoteclip_checkpoint: models/remoteclip/RemoteCLIP-ViT-B-32.pt
+compute_temporal_embedding_similarity: true
+candidate_filtering:
+  enabled: true
+  min_valid_fraction: null
+  reject_edge_components: false
+  edge_margin_pixels: 0
+  scoring_enabled: true

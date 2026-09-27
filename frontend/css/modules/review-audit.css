@@ -1,0 +1,45 @@
+/* ---------- PHASE 6 · REVIEW QUEUE + AUDIT ---------- */
+.qchip.on{border-color:var(--cyan2);color:var(--cyan-d);background:rgba(123,166,163,.12)}
+.rev-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.rev-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.cand-card{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:13px 14px;display:flex;flex-direction:column;gap:10px;transition:.18s}
+.cand-card:hover{border-color:var(--cyan2);box-shadow:0 10px 26px rgba(64,58,44,.08)}
+.cand-head{display:flex;align-items:flex-start;gap:10px}
+.cand-name{font-size:13px;font-weight:800;line-height:1.3}
+.cand-sub{font-size:10px;color:var(--faint);margin-top:3px}
+.cand-body{display:flex;gap:12px}
+.cand-ev{position:relative;flex:0 0 150px;height:104px;border:1px solid var(--line2);border-radius:9px;overflow:hidden;cursor:pointer}
+.cand-ev canvas{width:100%;height:100%;display:block}
+.cand-ev .zoom{position:absolute;bottom:5px;right:5px;font-size:8.5px;font-weight:800;letter-spacing:.8px;background:rgba(251,248,239,.92);border:1px solid var(--line2);border-radius:5px;padding:2px 7px;color:var(--cyan-d)}
+.cand-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.cand-mrow{display:flex;gap:13px;font-size:10.5px;color:var(--faint);flex-wrap:wrap}
+.cand-mrow b{color:var(--text);font-weight:800}
+.cand-src{font-size:10.5px;color:var(--muted);line-height:1.4}
+.cand-actions{display:flex;gap:7px;margin-top:auto}
+.act{flex:1;border-radius:8px;padding:7px 0;font-size:10.5px;font-weight:800;text-align:center;cursor:pointer;border:1px solid;transition:.15s;letter-spacing:.4px;user-select:none}
+.act.ok{color:var(--green-d);border-color:rgba(124,154,120,.55);background:rgba(124,154,120,.1)}
+.act.ok:hover{background:rgba(124,154,120,.24)}
+.act.no{color:#a4574d;border-color:rgba(201,141,104,.5);background:rgba(201,141,104,.08)}
+.act.no:hover{background:rgba(201,141,104,.2)}
+.act.maybe{color:var(--amber-d);border-color:rgba(211,166,86,.5);background:rgba(211,166,86,.08)}
+.act.maybe:hover{background:rgba(211,166,86,.2)}
+.flag-pill{display:inline-flex;align-items:center;gap:5px;background:rgba(211,166,86,.14);border:1px solid rgba(211,166,86,.5);color:var(--amber-d);border-radius:999px;padding:3px 10px;font-size:9px;font-weight:800;letter-spacing:1px;white-space:nowrap}
+.rev-empty{text-align:center;padding:56px 20px;color:var(--faint)}
+.rev-empty svg{width:44px;height:44px;color:var(--green-d);margin-bottom:6px}
+.chain-pill{display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:5px 13px;font-size:10px;font-weight:800;letter-spacing:1.1px;border:1px solid;white-space:nowrap}
+.chain-ok{background:rgba(124,154,120,.12);color:var(--green-d);border-color:rgba(124,154,120,.5)}
+.chain-bad{background:rgba(201,141,104,.14);color:#a4574d;border-color:rgba(201,141,104,.55)}
+.arow{display:grid;grid-template-columns:58px 100px 1fr 92px;gap:12px;padding:9px 6px;border-bottom:1px dashed var(--line);font-size:12px;align-items:center}
+.arow.head{font-size:9px;letter-spacing:1.3px;text-transform:uppercase;color:var(--faint);font-weight:800;border-bottom:1px solid var(--line2)}
+.arow .at{font-family:ui-monospace,monospace;color:var(--faint);font-size:10.5px}
+.arow .ah{font-family:ui-monospace,monospace;font-size:10px;color:var(--faint);text-align:right}
+.arow .ad{color:var(--muted);line-height:1.45}
+.arow.broken .ah{color:#a4574d;font-weight:800}
+.arow.broken .ad{color:#a4574d}
+.tag2{display:inline-block;border-radius:6px;padding:2.5px 8px;font-size:9px;font-weight:800;letter-spacing:1px;border:1px solid;white-space:nowrap}
+.tag2.g{background:rgba(124,154,120,.14);color:var(--green-d);border-color:rgba(124,154,120,.45)}
+.tag2.r{background:rgba(201,141,104,.14);color:#a4574d;border-color:rgba(201,141,104,.45)}
+.tag2.a{background:rgba(211,166,86,.14);color:var(--amber-d);border-color:rgba(211,166,86,.45)}
+.tag2.c{background:rgba(123,166,163,.14);color:var(--cyan-d);border-color:rgba(123,166,163,.45)}
+@media(max-width:1100px){.rev-grid{grid-template-columns:1fr}}
+@media(max-width:700px){.arow{grid-template-columns:50px 1fr 80px}.arow .ad,.arow.head .ad{display:none}}

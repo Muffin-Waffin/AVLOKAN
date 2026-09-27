@@ -1,0 +1,48 @@
+data:
+  root: data/oscd/raw/extracted
+  splits: data/oscd/splits.json
+
+cross_validation:
+  n_splits: 5
+  fold: 0
+  seed: 42
+
+input:
+  bands: [B04, B03, B02]
+  quantification_value: 10000
+  normalization: raw_dn_divide_clip_0_1_then_map_minus1_1
+
+patch:
+  patch_size: 256
+  patch_stride: 128
+  validation_stride: 256
+  order: row_major
+  coverage: full
+  pad: reflect_bottom_right_only
+  padded_labels: excluded_by_valid_mask
+  augmentation:
+    enabled: true
+    transforms: [identity, horizontal_flip, vertical_flip, rotate_90, rotate_180, rotate_270]
+
+training:
+  batch_size: 1
+  epochs: 5
+  optimizer: AdamW
+  learning_rate: 0.0001
+  weight_decay: 0.0001
+  seed: 42
+  device: auto
+  cpu_threads: 4
+
+model:
+  architecture: official_BIT_LEVIR_3_channel_2_class
+  checkpoint: models/bit/BIT_OSCD_CV5/fold_0/best_oscd_bit.pt
+
+loss:
+  positive_weight: 20
+  bce_weight: 0.5
+  dice_weight: 0.5
+  smooth: 1.0
+
+output:
+  checkpoint_directory: models/bit/BIT_OSCD_ablation_pos20

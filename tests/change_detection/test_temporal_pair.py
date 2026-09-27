@@ -35,6 +35,17 @@ def test_invalid_order_rejected(rasters):
                                 t1_date="2025-03-29", t2_date="2025-03-24")
 
 
+def test_reversed_dates_can_preserve_explicit_input_order(rasters):
+    pair = TemporalPair.from_paths(
+        tile_id="x", t1_path=rasters[0], t2_path=rasters[1],
+        t1_date="2025-03-29", t2_date="2025-03-24",
+        allow_reversed_dates=True,
+    )
+    assert pair.t1_path == rasters[0]
+    assert pair.t2_path == rasters[1]
+    assert pair.t1_date > pair.t2_date
+
+
 def test_missing_file_rejected(rasters, tmp_path):
     with pytest.raises(TemporalPairError, match="does not exist"):
         TemporalPair.from_paths(tile_id="x", t1_path=tmp_path / "missing.tif", t2_path=rasters[1],
