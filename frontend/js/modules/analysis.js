@@ -16,7 +16,6 @@ const CURRENT_PAIR_KEY='avlokan.currentAnalysisPair';
 function saveCurrentAnalysis(id,pair){
  sessionStorage.setItem(CURRENT_ANALYSIS_KEY,id);
  sessionStorage.setItem(CURRENT_PAIR_KEY,JSON.stringify(pair));
- history.replaceState(null,'','#detection');
 }
 function clearCurrentAnalysis(){sessionStorage.removeItem(CURRENT_ANALYSIS_KEY);sessionStorage.removeItem(CURRENT_PAIR_KEY)}
 async function restoreCurrentAnalysis(){
@@ -433,6 +432,11 @@ startDetection=function(){clearCurrentAnalysis();App.backendAnalysis=null;App.ba
 refreshDetection=function(){
  if(P5.running)return;
  if(App.backendAnalysis){renderDetResults();return}
+ if(sessionStorage.getItem(CURRENT_ANALYSIS_KEY)){
+  restoreCurrentAnalysis().then(restored=>{
+   if(restored&&App.route==='detection')renderDetResults();
+  });
+ }
  const p=getPair(),el=document.getElementById('view-detection');
  el.innerHTML=`<div class="flowstrip">${flowStrip('detection')}</div><div class="panel stub"><div class="si">${ICONS.cpu}</div><h2>${p?'Analysis ready':'No temporal pair selected'}</h2><p>${p?'Start the AVLOKAN backend analysis for the selected local observations.':'Select two local Sentinel-2 observations first.'}</p><button class="btn btn-primary" style="width:auto" onclick="${p?'runDetPipeline()':'go(\'scene\')'}">${p?'Run Change Analysis':'→ Select observations'}</button></div>`;
 };
