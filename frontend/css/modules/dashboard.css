@@ -26,17 +26,20 @@
 /* map */
 .map-panel{display:flex;flex-direction:column}
 .map-body{position:relative;flex:1;min-height:520px;overflow:hidden;border-radius:0 0 0 0}
-.map-body .leaflet-container{height:100%;width:100%;font:12px Segoe UI,sans-serif;background:#dfe8e2}
-.map-body .leaflet-control-zoom{display:none}
-.map-body .leaflet-popup-content{line-height:1.5}
-#eoMap{position:absolute;inset:0;width:100%;height:100%;cursor:grab;touch-action:none}
+.map-body .maplibregl-map{position:absolute;inset:0;height:100%;width:100%;font:12px Segoe UI,sans-serif;background:#f4f6f5}
+.map-body .maplibregl-ctrl-top-right{top:56px;right:12px}
+.map-body .maplibregl-ctrl-group{border:1px solid #d5dcda;border-radius:8px;overflow:hidden;box-shadow:0 2px 10px rgba(31,49,54,.12)}
+.map-body .maplibregl-ctrl-group button{width:30px;height:30px;background-color:#fff;color:#43545a}
+.map-body .maplibregl-ctrl-group button:hover{background-color:#edf3f2}
+.map-body .maplibregl-ctrl-attrib{background:rgba(255,255,255,.86);color:#526168;font-size:9px}
+.map-body .maplibregl-ctrl-attrib a{color:#405b69}
+.map-chips,.map-coords,.map-legend,.explore-info{z-index:5}
+.avlo-map-label{color:#45545a;text-shadow:0 1px 2px #fff,1px 0 2px #fff,0 -1px 2px #fff;font:600 11px/1.15 Segoe UI,sans-serif;white-space:nowrap;pointer-events:none}
+.avlo-map-label.is-major{font-size:12px;font-weight:800;color:#34444b}
 .map-chips{position:absolute;top:12px;left:12px;display:flex;gap:7px;flex-wrap:wrap;max-width:62%}
 .mchip{background:rgba(251,248,239,.92);border:1px solid var(--line2);border-radius:999px;padding:5px 11px;font-size:10.5px;font-weight:800;letter-spacing:.8px;color:var(--muted);cursor:pointer;user-select:none}
 .mchip:hover{border-color:var(--cyan2)}
 .mchip.on{background:rgba(123,166,163,.16);border-color:var(--cyan2);color:var(--cyan-d)}
-.map-zoom{position:absolute;top:12px;right:12px;display:flex;flex-direction:column;gap:6px}
-.zbtn{width:30px;height:30px;border-radius:8px;background:rgba(251,248,239,.95);border:1px solid var(--line2);color:var(--muted);font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center}
-.zbtn:hover{border-color:var(--cyan2);color:var(--cyan-d)}
 .map-coords{position:absolute;bottom:12px;left:12px;background:rgba(251,248,239,.92);border:1px solid var(--line2);border-radius:8px;padding:5px 10px;font-size:10.5px;color:var(--muted)}
 .map-legend{position:absolute;bottom:12px;right:12px;background:rgba(251,248,239,.92);border:1px solid var(--line2);border-radius:8px;padding:8px 11px;display:flex;gap:11px;flex-wrap:wrap}
 .legend-item{display:flex;gap:5px;align-items:center;font-size:10px;font-weight:700;color:var(--muted)}
@@ -78,3 +81,20 @@
 .mod.alert .mi{background:rgba(211,166,86,.12);border-color:rgba(211,166,86,.35)}
 .mod.alert .mi svg{color:var(--amber-d)}
 .mbadge{background:rgba(211,166,86,.16);color:var(--amber-d);border:1px solid rgba(211,166,86,.45);border-radius:999px;font-size:10px;font-weight:800;padding:2px 9px}
+
+/* Readable dashboard feed and tighter operational spacing */
+.feed{display:grid;grid-template-columns:minmax(0,1fr);gap:5px;padding:11px 0}
+.feed-head{display:flex;align-items:center;gap:8px;min-width:0;flex-wrap:wrap}
+.feed .ft{width:auto;flex:0 0 auto;white-space:normal;overflow-wrap:anywhere;padding:0}
+.feed .fb{min-width:0;line-height:1.45;overflow-wrap:anywhere}
+.feed .tag{margin-right:0;flex:0 0 auto}
+.feed-id{font-size:10px;color:var(--faint);overflow-wrap:anywhere;word-break:break-word}
+.stats{gap:12px;margin:14px 0 18px}
+.stat{padding:15px 17px}
+.dash-map-row{gap:14px;margin-bottom:16px;grid-template-columns:minmax(0,1fr) minmax(290px,340px)}
+.mods{gap:12px}
+.mod{padding:17px}
+.map-chips{max-width:calc(100% - 112px)}
+.map-legend{max-width:calc(100% - 150px)}
+@media(max-width:900px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.dash-map-row{grid-template-columns:minmax(0,1fr)}.map-body{min-height:420px}}
+@media(max-width:600px){.mods{grid-template-columns:1fr}.stats{gap:9px}.stat{padding:12px}.map-chips{max-width:calc(100% - 24px);right:12px}.map-legend{left:12px;right:12px;bottom:48px}.map-coords{bottom:12px}}

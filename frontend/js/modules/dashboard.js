@@ -57,7 +57,7 @@ async function loadApiDashboard(){
   ];
   status.innerHTML=sys.map(r=>`<div class="srow"><span class="sk">${escapeHtml(r[0])}</span><span class="sv ${r[2]}">${escapeHtml(r[1])}</span></div>`).join('');
   renderSearchIndexStatus(health);
-  const activity=(dash.recent_activity||[]).map(event=>`<div class="feed"><span class="ft mono">${escapeHtml(event.timestamp||'')}</span><span class="fb"><span class="tag c">${escapeHtml(event.action||'EVENT')}</span>${escapeHtml(event.detail||'')}</span></div>`).join('');
+  const activity=(dash.recent_activity||[]).map(event=>{const detail=String(event.detail||''),id=detail.match(/\b[a-f0-9]{32}\b/i)?.[0];const description=id?detail.replace(id,'').replace(/\s{2,}/g,' ').trim():detail;return `<div class="feed"><div class="feed-head"><span class="ft mono">${escapeHtml(event.timestamp||'')}</span><span class="tag c">${escapeHtml(event.action||'EVENT')}</span></div><div class="fb">${escapeHtml(description||detail)}</div>${id?`<div class="feed-id mono" title="${escapeHtml(id)}">${escapeHtml(id)}</div>`:''}</div>`}).join('');
   const feed=document.getElementById('feed');if(feed)feed.innerHTML=activity||'<div class="tip">No backend activity recorded yet.</div>';
   renderAoiList();
   needRender=true;if(window.EMAP)EMAP.invalidate();

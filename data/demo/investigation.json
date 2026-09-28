@@ -1,0 +1,9 @@
+{
+  "investigation_id":"demo-indore-20250329-20250324",
+  "title":"Indore prototype temporal investigation",
+  "selected_scene":"s2_demo__tile_000000",
+  "location":{"name":"Indore prototype area","lat":22.77736,"lng":75.82474},
+  "sensor":"Sentinel-2",
+  "aoi":{"type":"bbox","coordinates":[75.79966202098623,22.754106944804505,75.8498135819418,22.800612416259163],"crs":"EPSG:4326"},
+  "source":"REAL local analysis-ready observations; acquisition references in config.json"
+}

@@ -39,4 +39,4 @@ To regenerate, read the current Geofabrik India page, download the PBF and match
 
 ## Current preparation status
 
-See `data/map/osm/metadata.json` for this workspace's measured status. If processing tools are missing, do not report empty results as valid data: install a bounded processing toolchain and rerun the full pipeline before enabling the basemap.
+The Geofabrik India source PBF has been acquired at `data/map/osm/source/india-latest.osm.pbf` and verified against the official dated MD5 sidecar. The file size, resolved dated URL, download time, OSM data timestamp, and PBF block-read validation are recorded in `data/map/osm/metadata.json`. Processing, GeoPackage generation, and vector tile generation have **not** started.

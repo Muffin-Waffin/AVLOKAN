@@ -1,0 +1,10 @@
+{
+  "query": "Newly constructed buildings and infrastructure development",
+  "ranking_basis": "DEMO SIMULATED prepared ranking; records and thumbnails refer to real locally indexed Sentinel-2 imagery.",
+  "results": [
+    {"id":"s2_demo__tile_000000","rank":1,"sim":0.941,"region":"Indore prototype area","date":"2025-03-29","sensor":"sentinel-2","lat":22.788987426608998,"lng":75.81233363767576,"cloud":null,"thumbnail_url":"/api/tiles/s2_demo__tile_000000/preview"},
+    {"id":"s2_demo__tile_000001","rank":2,"sim":0.913,"region":"Indore prototype area","date":"2025-03-29","sensor":"sentinel-2","lat":22.788858480792207,"lng":75.83727254030742,"cloud":null,"thumbnail_url":"/api/tiles/s2_demo__tile_000001/preview"},
+    {"id":"s2_demo__tile_000002","rank":3,"sim":0.887,"region":"Indore prototype area","date":"2025-03-29","sensor":"sentinel-2","lat":22.765863489839624,"lng":75.81219676115894,"cloud":null,"thumbnail_url":"/api/tiles/s2_demo__tile_000002/preview"},
+    {"id":"s2_demo__tile_000003","rank":4,"sim":0.861,"region":"Indore prototype area","date":"2025-03-29","sensor":"sentinel-2","lat":22.76573468923242,"lng":75.8371314628161,"cloud":null,"thumbnail_url":"/api/tiles/s2_demo__tile_000003/preview"}
+  ]
+}

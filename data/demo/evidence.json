@@ -1,0 +1,27 @@
+{
+  "candidate_component_id": 2,
+  "change_type": "Construction",
+  "change_type_source": "Demo interpretation; not a classifier prediction",
+  "verification_sources": {
+    "Sentinel-2 Optical": "Active; real saved BIT temporal pair (2025-03-24 / 2025-03-29)",
+    "Sentinel-1 SAR fallback": "Active; real Sentinel-1A dual-pol (VV/VH) terrain-corrected backscatter evidence (2025-03-27)"
+  },
+  "checks": [
+    {"name": "BIT pixel-level change analysis", "status": "Real output available (mean probability 0.9861)"},
+    {"name": "Geometric registration", "status": "Registered onto common EPSG:32643 10m UTM grid"},
+    {"name": "Cloud / shadow masking", "status": "Optical clear (SCL QA verified)"},
+    {"name": "Temporal consistency", "status": "Verified across bitemporal baseline"},
+    {"name": "Embedding candidate gate", "status": "Demo semantic screen active"},
+    {"name": "SAR sensor agreement", "status": "Corroborated · High multi-sensor agreement (Optical HIGH · SAR HIGH)"}
+  ],
+  "confidence_label": "Evidence Score (uncalibrated fusion)",
+  "evidence_score": 84.7,
+  "formula": "0.45 * optical + 0.25 * sar + 0.15 * agreement + 0.15 * quality",
+  "disclaimer": "Evidence score combines available optical, SAR and quality evidence. It is not a calibrated probability.",
+  "confidence_factors": [
+    "real mean BIT change probability (0.9861)",
+    "real Sentinel-1 SAR change evidence (0.5759)",
+    "multi-sensor agreement corroboration (HIGH AGREEMENT)",
+    "data quality and cloud clearance (1.0)"
+  ]
+}

@@ -43,3 +43,14 @@
 .tag2.c{background:rgba(123,166,163,.14);color:var(--cyan-d);border-color:rgba(123,166,163,.45)}
 @media(max-width:1100px){.rev-grid{grid-template-columns:1fr}}
 @media(max-width:700px){.arow{grid-template-columns:50px 1fr 80px}.arow .ad,.arow.head .ad{display:none}}
+
+/* Server audit rows retain all four fields at every width. */
+.audit-table-wrap{overflow-x:auto;overscroll-behavior-x:contain}
+.audit-table-wrap .arow{grid-template-columns:minmax(145px,190px) minmax(95px,125px) minmax(220px,1fr) minmax(110px,170px);min-width:680px;gap:12px}
+.audit-table-wrap .arow>*{min-width:0}
+.audit-table-wrap .arow .at{line-height:1.35;overflow-wrap:anywhere;white-space:normal}
+.audit-table-wrap .arow .audit-action{min-width:0}
+.audit-table-wrap .arow .tag2{max-width:100%;white-space:normal;overflow-wrap:anywhere}
+.audit-table-wrap .arow .ad{overflow-wrap:anywhere;word-break:normal}
+.audit-table-wrap .arow .ah{text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:700px){.audit-table-wrap .arow{grid-template-columns:minmax(145px,190px) minmax(95px,125px) minmax(220px,1fr) minmax(110px,170px)}.audit-table-wrap .arow .ad,.audit-table-wrap .arow.head .ad{display:block}}

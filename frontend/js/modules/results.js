@@ -16,7 +16,14 @@ function sortResults(list){
  else c.sort((a,b)=>b.sim-a.sim);
  return c}
 
-function shownResults(){return sortResults(S.results.filter(r=>S.qf[r.sensor.id]))}
+function shownResults(){
+ return sortResults(S.results.filter(r=>{
+  if(!r.sensor)return false;
+  const sid=(r.sensor.id||(typeof r.sensor==='string'?r.sensor:'')).toLowerCase();
+  const normId=(sid==='sentinel-2'?'s2':(sid==='sentinel-1'?'s1':(sid==='landsat'?'l8':(sid==='bhuvan'?'bh':sid))));
+  return S.qf[normId]!==false;
+ }));
+}
 
 function setDensity(d){S.density=d;renderResults(S.lastLabel)}
 function qfToggle(id){S.qf[id]=!S.qf[id];renderResults(S.lastLabel)}
@@ -79,7 +86,9 @@ function renderResults(label){
     <div class="simbar"><i style="width:${(r.sim*100).toFixed(1)}%"></i></div>
     <div class="rbtns">
      <span class="rbtn pri" onclick="viewRes(${i})">View</span>
-     <span class="rbtn" onclick="sendToAnalysis(${i})">Analyze →</span>
+     <span class="rbtn" onclick="sendToAnalysis(${i})">${r._demo?'Open investigation':'Analyze →'}</span>
+     ${(r._demo||(Number.isFinite(r.lat)&&Number.isFinite(r.lng)))?`<span class="rbtn" onclick="showDemoOnMap(${i})">Show on map</span>`:''}
+     ${r._demo&&r.id==='s2_demo__tile_000000'?`<span class="rbtn" onclick="DemoMode.showSimilar('${r.id}')">Find Similar Sites</span>`:''}
     </div>
    </div>`;
   if(!r._api)drawThumb(card.querySelector('canvas'),r.seed,r.feature);
@@ -264,10 +273,13 @@ function injectTileLightbox(){ /* override: Compare button now live */
   </div>
   <div class="modal-f">
    <button class="btn btn-primary" style="width:auto" onclick="sendToAnalysisFromTile()">Analyze → Multi-Temporal</button>
+   <button class="btn btn-ghost" style="width:auto" onclick="showOnMapFromTile()">Show on map</button>
    <button class="btn btn-ghost" style="width:auto" onclick="compareFromLightbox()">Compare</button>
    <button class="btn btn-ghost" style="width:auto;margin-left:auto" onclick="closeTile()">Close</button>
   </div>
  </div>`;
  document.body.appendChild(o)}
+
+function showOnMapFromTile(){const i=curTile;closeTile();if(i!=null)showDemoOnMap(i)}
 
 injectCompareModal();

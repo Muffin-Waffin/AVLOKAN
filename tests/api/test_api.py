@@ -98,20 +98,27 @@ def test_scene_search_includes_distinct_analysis_ready_prototype_observations(ap
     assert response.status_code == 200, response.text
     items = response.json()["items"]
     prototypes = [item for item in items if item["record_type"] == "prototype_analysis_ready"]
-    assert [(item["observation_role"], item["date"]) for item in prototypes] == [
-        ("T2", "2025-03-24"), ("T1", "2025-03-29"),
+    assert [(item["id"], item["observation_role"], item["date"]) for item in prototypes] == [
+        ("S2B_MSIL2A_20250324T052649_N0511_R105_T43QEF_20250324T074123", "T1", "2025-03-24"),
+        ("S2C_MSIL2A_20250329T052841_N0511_R105_T43QEF_20250329T105014", "T2", "2025-03-29"),
     ]
     assert [item["acquisition_datetime"] for item in prototypes] == [
         "2025-03-24T05:26:49.024000+00:00", "2025-03-29T05:28:41.025000+00:00",
     ]
     assert all(item["available_locally"] for item in prototypes)
     assert all(item["source"] == "existing local prototype analysis asset" for item in prototypes)
-    assert all(Path(item["local_path"]).as_posix().startswith("data/processed/") for item in prototypes)
+    expected = [
+        "data/processed/phase6_validation/s2_20250324_512.tif",
+        "data/processed/phase2_validation/s2_reflectance_512.tif",
+    ]
+    assert [Path(item["local_path"]).as_posix() for item in prototypes] == expected
+    assert all((ROOT / item["local_path"]).is_file() for item in prototypes)
     assert all(item["cloud"] is None and item["cloud_metadata_available"] is False for item in prototypes)
     assert all(item["bbox"] == pytest.approx([75.799662, 22.754107, 75.849814, 22.800612], abs=1e-5)
                for item in prototypes)
     archives = [item for item in items if item["record_type"] == "archive_scene"]
     assert archives and all(item["source"] == "local archive scene catalog" for item in archives)
+    assert all(not item["available_locally"] and not item["local_path"] for item in archives)
 
 
 def test_analysis_ready_observation_ids_validate_as_a_supplied_temporal_pair(api_client, monkeypatch):
@@ -148,7 +155,8 @@ def test_analysis_ready_observation_ids_validate_as_a_supplied_temporal_pair(api
         )
 
     monkeypatch.setattr(ChangeAnalyzer, "analyze", fake_analyze)
-    t1_id, t2_id = "avlokan-prototype-s2-t1-20250329", "avlokan-prototype-s2-t2-20250324"
+    t1_id = "S2B_MSIL2A_20250324T052649_N0511_R105_T43QEF_20250324T074123"
+    t2_id = "S2C_MSIL2A_20250329T052841_N0511_R105_T43QEF_20250329T105014"
     invalid = api_client.post("/api/change-analyses", json={
         "t1_observation_id": "missing", "t2_observation_id": t2_id,
     })
@@ -163,10 +171,10 @@ def test_analysis_ready_observation_ids_validate_as_a_supplied_temporal_pair(api
     assert result.status_code == 201, result.text
     data = result.json()
     pair = captured["pair"]
-    assert pair.t1_path == ROOT / "data/processed/phase2_validation/s2_reflectance_512.tif"
-    assert pair.t2_path == ROOT / "data/processed/phase6_validation/s2_20250324_512.tif"
-    assert pair.t1_date.isoformat().startswith("2025-03-29")
-    assert pair.t2_date.isoformat().startswith("2025-03-24")
+    assert pair.t1_path == ROOT / "data/processed/phase6_validation/s2_20250324_512.tif"
+    assert pair.t2_path == ROOT / "data/processed/phase2_validation/s2_reflectance_512.tif"
+    assert pair.t1_date.isoformat().startswith("2025-03-24")
+    assert pair.t2_date.isoformat().startswith("2025-03-29")
     assert data["temporal"]["t1_scene_id"] == t1_id
     assert data["temporal"]["t2_scene_id"] == t2_id
     assert data["temporal"]["t1_role"] == "T1" and data["temporal"]["t2_role"] == "T2"

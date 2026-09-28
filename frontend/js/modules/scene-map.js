@@ -7,192 +7,21 @@ delete STUBS.scene; delete STUBS.map;
 
 const S4={scenes:[],t1:null,t2:null,pin:null,rad:3,name:'—',pre:null};
 const EXP={cur:null};
-const INSTS=[];
 var SMAP=null,EMAP=null;
-const ARCH_BTN='⌕ Query Local Catalog';
+const ARCH_BTN='? Query Local Catalog';
 
-const DENSITY_BLOBS=[
- {lat:18.95,lng:72.84,n:41000},{lat:28.61,lng:77.21,n:38000},{lat:13.08,lng:80.27,n:29000},
- {lat:34.15,lng:77.58,n:19000},{lat:27.54,lng:71.90,n:15000},{lat:23.35,lng:85.30,n:22000},
- {lat:22.80,lng:79.60,n:26000},{lat:19.07,lng:73.86,n:17000},{lat:26.91,lng:75.79,n:12000},
- {lat:30.73,lng:76.78,n:9800},{lat:12.97,lng:77.59,n:14000},{lat:17.38,lng:78.49,n:11000}];
-
-/* ---- reusable map factory (independent state + terrain cache per page) ---- */
+/* ---- MapLibre instances share one renderer and AVLOKAN overlay API. ---- */
 function makeMap(cfg){
- const geographic=createAvlokanMap({container:cfg.body,center:[cfg.lat,cfg.lng],zoom:cfg.z,coordsEl:cfg.coordsEl,onPick:cfg.onPick,onPinHit:cfg.onPinHit,onSceneHit:cfg.onSceneHit});
- if(geographic){ geographic.setAOIs(window.BackendAOIs||[]); return geographic; }
- const view=document.getElementById('view-'+cfg.view);
- const body=document.getElementById(cfg.body);
- const cv=document.createElement('canvas');
- cv.style.cssText='position:absolute;inset:0;width:100%;height:100%;cursor:grab;touch-action:none';
- body.insertBefore(cv,body.firstChild);
- const cx=cv.getContext('2d');
- const st={lat:cfg.lat,lng:cfg.lng,z:cfg.z,
-  layers:Object.assign({optical:true,sar:false,registry:true,labels:true,density:false},cfg.layers),
-  drag:null,hits:[],ox:0,oy:0,w:0,h:0,need:true,userPin:null,pins:cfg.pins||[],blobs:cfg.blobs||null};
- let tcv=document.createElement('canvas'),tcx=tcv.getContext('2d'),tox=-1,toy=-1,tw=0,th=0;
- const WS=()=>512*Math.pow(2,st.z);
- const pX=lng=>(lng+180)/360*WS();
- const pY=lat=>(90-lat)/180*WS();
- const uLng=x=>x/WS()*360-180;
- const uLat=y=>90-y/WS()*180;
- const coordsEl=cfg.coordsEl?document.getElementById(cfg.coordsEl):null;
- const gsdEl=cfg.gsdEl?document.getElementById(cfg.gsdEl):null;
- const kmPx=lat=>360/WS()*111.32*Math.cos(lat*Math.PI/180);
-
- function renderTerrain(){
-  tcv.width=st.w+PAD*2;tcv.height=st.h+PAD*2;
-  const x=tcx,cell=8,sar=st.layers.sar;
-  for(let py=0;py<tcv.height;py+=cell)for(let px=0;px<tcv.width;px+=cell){
-   const wx=px+tox,wy=py+toy;
-   const t=terrainAt(wx,wy);
-   x.fillStyle=classify(t);x.fillRect(px,py,cell,cell);
-   if(sar){x.fillStyle='rgba(168,148,173,.30)';x.fillRect(px,py,cell,cell);
-    if(hash((wx>>2)+900,(wy>>2)+700)>.87){x.fillStyle='rgba(111,90,119,.45)';x.fillRect(px,py,cell,cell)}}}}
-
- function grat(x,w,h){
-  const W=WS(),degPx=360/W;
-  const steps=[30,15,10,5,2,1,.5,.25,.125];
-  const stp=steps.find(s=>s/degPx>=90)||steps[steps.length-1];
-  const fmt=(v,p,n)=>(stp<1?Math.abs(v).toFixed(1):Math.round(Math.abs(v)))+'°'+(v>=0?p:n);
-  x.strokeStyle='rgba(64,58,44,.13)';x.fillStyle='rgba(64,58,44,.5)';x.font='9px ui-monospace,monospace';x.lineWidth=1;
-  const l0=Math.floor(uLng(st.ox)/stp)*stp;
-  for(let i=0;i<400;i++){const lng=l0+i*stp,sx=pX(lng)-st.ox;
-   if(sx>w)break;if(sx<0)continue;
-   x.beginPath();x.moveTo(sx+.5,0);x.lineTo(sx+.5,h);x.stroke();x.fillText(fmt(lng,'E','W'),sx+3,12)}
-  const a0=Math.floor(uLat(st.oy)/stp)*stp;
-  for(let i=0;i<400;i++){const lat=a0-i*stp,sy=pY(lat)-st.oy;
-   if(sy>h)break;if(sy<0)continue;
-   x.beginPath();x.moveTo(0,sy+.5);x.lineTo(w,sy+.5);x.stroke();x.fillText(fmt(lat,'N','S'),4,sy-3)}}
-
- function drawReg(a){
-  const sx=pX(a.lng)-st.ox,sy=pY(a.lat)-st.oy;
-  const r=Math.max(16,a.rad/kmPx(a.lat));
-  if(sx<-r-100||sy<-r-100||sx>st.w+r+100||sy>st.h+r+100)return;
-  const col='#5b8c89';
-  cx.strokeStyle=col;cx.lineWidth=1.6;cx.setLineDash([6,5]);
-  cx.beginPath();cx.arc(sx,sy,r,0,7);cx.stroke();cx.setLineDash([]);
-  cx.fillStyle='#fbf8ef';cx.strokeStyle=col;cx.lineWidth=2.5;
-  cx.beginPath();cx.arc(sx,sy,7,0,7);cx.fill();cx.stroke();
-  cx.fillStyle=col;cx.beginPath();cx.arc(sx,sy,3.2,0,7);cx.fill();
-  if(st.layers.labels){
-   const lbl=a.name.split('—')[0].trim();
-   cx.font='700 10.5px Segoe UI,sans-serif';
-   const tw=cx.measureText(lbl).width+16;
-   const lx=clamp(sx-tw/2,4,st.w-tw-4),ly=sy-r-30<8?sy+13:sy-r-30;
-   cx.fillStyle='rgba(251,248,239,.94)';cx.strokeStyle='rgba(211,202,176,.9)';cx.lineWidth=1;
-   rrect(cx,lx,ly,tw,20,7);cx.fill();cx.stroke();
-   cx.fillStyle='#403a2c';cx.fillText(lbl,lx+8,ly+13.5);
-   cx.fillStyle=col;cx.beginPath();cx.arc(lx+tw-8,ly+10,3,0,7);cx.fill()}
-  st.hits.push({x:sx,y:sy,r:Math.max(r,16),a})}
-
- function drawUserPin(){
-  const p=st.userPin;if(!p)return;
-  const sx=pX(p.lng)-st.ox,sy=pY(p.lat)-st.oy;
-  const r=Math.max(14,p.rad/kmPx(p.lat));
-  cx.strokeStyle='#5b8c89';cx.lineWidth=2;cx.setLineDash([7,5]);
-  cx.beginPath();cx.arc(sx,sy,r,0,7);cx.stroke();cx.setLineDash([]);
-  cx.strokeStyle='#5b8c89';cx.lineWidth=2;
-  cx.beginPath();cx.moveTo(sx-12,sy);cx.lineTo(sx+12,sy);cx.moveTo(sx,sy-12);cx.lineTo(sx,sy+12);cx.stroke();
-  cx.fillStyle='#fbf8ef';cx.beginPath();cx.arc(sx,sy,5.5,0,7);cx.fill();
-  cx.strokeStyle='#5b8c89';cx.lineWidth=2.5;cx.stroke();
-  if(st.layers.labels){
-   const lbl='AOI · r='+(+p.rad).toFixed(1)+' km';
-   cx.font='800 10px ui-monospace,monospace';
-   const tw=cx.measureText(lbl).width+14;
-   const lx=clamp(sx-tw/2,4,st.w-tw-4),ly=sy+r+8>st.h-26?sy-r-26:sy+r+8;
-   cx.fillStyle='rgba(123,166,163,.16)';cx.strokeStyle='rgba(123,166,163,.55)';cx.lineWidth=1;
-   rrect(cx,lx,ly,tw,19,6);cx.fill();cx.stroke();
-   cx.fillStyle='#41706d';cx.fillText(lbl,lx+7,ly+13)}}
-
- function drawBlobs(){
-  if(!st.layers.density||!st.blobs)return;
-  st.blobs.forEach(b=>{
-   const sx=pX(b.lng)-st.ox,sy=pY(b.lat)-st.oy;
-   const r=Math.max(16,(30+b.n/700)/kmPx(b.lat));
-   if(sx<-r||sy<-r||sx>st.w+r||sy>st.h+r)return;
-   const g=cx.createRadialGradient(sx,sy,2,sx,sy,r);
-   g.addColorStop(0,'rgba(123,166,163,.32)');g.addColorStop(1,'rgba(123,166,163,0)');
-   cx.fillStyle=g;cx.beginPath();cx.arc(sx,sy,r,0,7);cx.fill();
-   if(st.layers.labels){
-    cx.fillStyle='rgba(65,112,109,.9)';cx.font='700 9.5px ui-monospace,monospace';cx.textAlign='center';
-    cx.fillText((b.n/1000).toFixed(1)+'k',sx,sy+3);cx.textAlign='left'}})}
-
- function render(){
-  const w=body.clientWidth,h=body.clientHeight;
-  if(!w||!h)return;
-  st.w=w;st.h=h;
-  if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h}
-  const W=WS();
-  st.ox=clamp(pX(st.lng)-w/2,0,Math.max(0,W-w));
-  st.oy=clamp(pY(st.lat)-h/2,0,Math.max(0,W-h));
-  if(tox<0||tw!==w||th!==h||Math.abs(st.ox-PAD-tox)>PAD||Math.abs(st.oy-PAD-toy)>PAD){
-   tox=st.ox-PAD;toy=st.oy-PAD;tw=w;th=h;renderTerrain()}
-  cx.clearRect(0,0,w,h);
-  cx.drawImage(tcv,Math.round(tox-st.ox),Math.round(toy-st.oy));
-  grat(cx,w,h);
-  st.hits=[];
-  drawBlobs();
-  if(st.layers.registry)(window.BackendAOIs||[]).forEach(a=>drawReg({...a,rad:a.radius_km}));
-  drawUserPin();
-  if(gsdEl){const gsd=360*111320/W*Math.cos(st.lat*Math.PI/180);
-   gsdEl.textContent='GSD ≈ '+(gsd>=1000?(gsd/1000).toFixed(2)+' km/px':Math.round(gsd)+' m/px')}
-  st.need=false}
-
- cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);
-  st.drag={sx:e.clientX,sy:e.clientY,ox:st.ox,oy:st.oy,moved:0};cv.style.cursor='grabbing'});
- cv.addEventListener('pointermove',e=>{
-  const r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;
-  if(st.drag){
-   const dx=e.clientX-st.drag.sx,dy=e.clientY-st.drag.sy;
-   st.drag.moved=Math.max(st.drag.moved,Math.abs(dx)+Math.abs(dy));
-   const W=WS();
-   const nox=clamp(st.drag.ox-dx,0,Math.max(0,W-st.w));
-   const noy=clamp(st.drag.oy-dy,0,Math.max(0,W-st.h));
-   st.lng=uLng(nox+st.w/2);st.lat=clamp(uLat(noy+st.h/2),-78,78);
-   st.need=true}
-  else if(coordsEl){
-   const lat=uLat(st.oy+my),lng=uLng(st.ox+mx);
-   coordsEl.textContent=Math.abs(lat).toFixed(4)+'°'+(lat>=0?'N':'S')+'  '+Math.abs(lng).toFixed(4)+'°'+(lng>=0?'E':'W')}});
- cv.addEventListener('pointerup',e=>{
-  const wasClick=st.drag&&st.drag.moved<6;
-  st.drag=null;cv.style.cursor='grab';
-  if(!wasClick)return;
-  const r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;
-  let best=null,bd=1e9;
-  st.hits.forEach(hh=>{const d=Math.hypot(hh.x-mx,hh.y-my);if(d<hh.r&&d<bd){bd=d;best=hh.a}});
-  if(best&&cfg.onPinHit){cfg.onPinHit(best);return}
-  if(cfg.onPick)cfg.onPick(uLng(st.ox+mx),clamp(uLat(st.oy+my),-78,78))});
- cv.addEventListener('wheel',e=>{
-  e.preventDefault();
-  const r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;
-  const gx=uLng(st.ox+mx),gy=uLat(st.oy+my);
-  st.z=clamp(st.z+(e.deltaY<0?.5:-.5),3,9);
-  const nx=pX(gx)-mx,ny=pY(gy)-my;
-  st.lng=uLng(nx+st.w/2);st.lat=clamp(uLat(ny+st.h/2),-78,78);
-  tox=-1;st.need=true},{passive:false});
- window.addEventListener('resize',()=>{tox=-1;st.need=true});
-
- (function pump(){
-  if(st.need&&view.classList.contains('active'))render();
-  requestAnimationFrame(pump)})();
-
- const api={st,
-  setPin(p){st.userPin=p;st.need=true},
-  clearPin(){st.userPin=null;st.need=true},
-  flyTo(lat,lng,z){st.lat=lat;st.lng=lng;if(z)st.z=z;tox=-1;st.need=true},
-  zoom(d){st.z=clamp(st.z+d,3,9);tox=-1;st.need=true},
-  home(){st.lat=cfg.lat;st.lng=cfg.lng;st.z=cfg.z;tox=-1;st.need=true},
-  toggle(k){st.layers[k]=!st.layers[k];if(k==='sar')tox=-1;st.need=true;return st.layers[k]},
-  invalidate(){tox=-1;st.need=true}};
- INSTS.push(api);
- return api}
-
+ const map=window.createAvlokanMap({container:cfg.body,center:[cfg.lat,cfg.lng],zoom:cfg.z,coordsEl:cfg.coordsEl,onPick:cfg.onPick,onPinHit:cfg.onPinHit,onSceneHit:cfg.onSceneHit,
+  onMarkerHit:p=>{if(Number.isFinite(Number(p.lat))&&Number.isFinite(Number(p.lng)))map.flyTo(Number(p.lat),Number(p.lng),12);}});
+ if(map)map.setAOIs(window.BackendAOIs||[]);
+ return map;
+}
 function chipToggle(mapVar,chipId,key){
- const m=window[mapVar];if(!m)return;
- const on=m.toggle(key);
- document.getElementById(chipId).classList.toggle('on',on)}
-
+ const map=window[mapVar];if(!map)return;
+ const on=key==='satellite'?map.toggleSatellite():map.toggle(key);
+ document.getElementById(chipId)?.classList.toggle('on',on);
+}
 function nearestRegion(lat,lng){
  let best=null,bd=1e9;
  REGIONS.slice(1).forEach(r=>{
@@ -207,17 +36,12 @@ function injectScene(){
   <div class="staged-banner hidden" id="stagedBanner"></div>
   <div class="scene-layout">
    <div class="panel map-panel">
-    <div class="panel-h">${IC.map} Select Area / Scene <span class="mh-sub">offline geographic basemap · click to query local catalog</span> <span class="mh-live"><span class="dot"></span>LOCAL</span></div>
+    <div class="panel-h">${IC.map} Select Area / Scene <span class="mh-sub">OpenFreeMap geographic context · click to query local catalog</span> <span class="mh-live"><span class="dot"></span>MAP</span></div>
     <div class="map-body" id="sceneMapBody" style="min-height:560px">
      <div class="map-chips">
-      <span class="mchip on" id="scL-opt">LOCAL BASEMAP</span>
+      <span class="mchip" id="scL-opt" onclick="chipToggle('SMAP','scL-opt','satellite')">SATELLITE</span>
       <span class="mchip on" id="scL-reg" onclick="chipToggle('SMAP','scL-reg','registry')">AOI REGISTRY</span>
       <span class="mchip on" id="scL-lbl" onclick="chipToggle('SMAP','scL-lbl','labels')">LABELS</span>
-     </div>
-     <div class="map-zoom">
-      <button class="zbtn" onclick="SMAP.zoom(1)">+</button>
-      <button class="zbtn" onclick="SMAP.zoom(-1)">−</button>
-      <button class="zbtn" onclick="SMAP.home()">⌂</button>
      </div>
      <div class="map-coords mono" id="scCoords">—</div>
      <div class="map-legend">
@@ -268,7 +92,7 @@ function injectScene(){
      <div class="panel-h">${IC.layers} Scene Pair — T1 / T2</div>
      <div class="panel-b">
       <div id="pairBox"><div class="pair-hint">Select a baseline scene (T1) and a current scene (T2) on the timeline.</div></div>
-      <button class="btn btn-primary" id="runAnaBtn" style="width:auto;margin-top:10px" disabled onclick="runAna()">Run Change Analysis →</button>
+      <button type="button" class="btn btn-primary" id="runAnaBtn" style="width:auto;margin-top:10px" disabled onclick="runAna()">Run Change Analysis →</button>
      </div>
     </div>
    </div>
@@ -282,18 +106,12 @@ function injectExplore(){
  document.getElementById('view-map').innerHTML=`
   <div class="flowstrip">${flowStrip('scene')}</div>
   <div class="panel map-panel">
-   <div class="panel-h">${IC.globe} Map Explorer <span class="mh-sub">offline geographic basemap · click for local catalog records</span> <span class="mh-live"><span class="dot"></span>LOCAL</span></div>
+   <div class="panel-h">${IC.globe} Map Explorer <span class="mh-sub">OpenFreeMap geographic context · click for local catalog records</span> <span class="mh-live"><span class="dot"></span>MAP</span></div>
    <div class="map-body" id="exploreMapBody" style="min-height:640px">
     <div class="map-chips">
-     <span class="mchip on" id="exL-opt">LOCAL BASEMAP</span>
+     <span class="mchip" id="exL-opt" onclick="chipToggle('EMAP','exL-opt','satellite')">SATELLITE</span>
      <span class="mchip on" id="exL-reg" onclick="chipToggle('EMAP','exL-reg','registry')">AOI REGISTRY</span>
      <span class="mchip on" id="exL-lbl" onclick="chipToggle('EMAP','exL-lbl','labels')">LABELS</span>
-     <span class="mchip" id="exL-den" onclick="chipToggle('EMAP','exL-den','density')">DEMO COVERAGE</span>
-    </div>
-    <div class="map-zoom">
-     <button class="zbtn" onclick="EMAP.zoom(1)">+</button>
-     <button class="zbtn" onclick="EMAP.zoom(-1)">−</button>
-     <button class="zbtn" onclick="EMAP.home()">⌂</button>
     </div>
     <div class="map-coords mono" id="exCoords">—</div>
     <div class="map-legend">
@@ -310,7 +128,7 @@ function injectExplore(){
      </div>
     </div>
    </div>
-   <div class="map-foot"><span>CLICK TERRAIN FOR LOCATION INTEL · CLICK REGISTRY PINS TO INVESTIGATE</span><span class="mono" id="exGsd">GSD —</span></div>
+   <div class="map-foot"><span>CLICK MAP FOR LOCATION INTEL · CLICK REGISTRY PINS TO INVESTIGATE</span><span class="mono" id="exGsd">GSD —</span></div>
   </div>
   <div class="panel" style="margin-top:16px">
    <div class="panel-h">${IC.map} Quick Jump</div>
@@ -474,10 +292,10 @@ renderPair=function(){
  const a=S4.scenes[S4.t1],b=S4.scenes[S4.t2];
  if(!a||!b||!a.date||!b.date){btn.disabled=true;return}
  const gap=Math.abs(Math.round((b.date-a.date)/864e5));
- const prototypePair=a.record_type==='prototype_analysis_ready'&&b.record_type==='prototype_analysis_ready'&&a.pair_id===b.pair_id&&a.observation_role==='T1'&&b.observation_role==='T2';
- const row=(role,s)=>`<div class="pairrow"><div><div class="rtitle">${role} · ${escapeHtml(s.id)}</div><div class="pair-m mono">${s.date.toISOString().slice(0,10)} · ${escapeHtml(s.sensor.name)} · ${s.record_type==='prototype_analysis_ready'?escapeHtml(s.source):'Archive catalog record'} · ${s.available_locally?'local raster available':'metadata only'}</div></div></div>`;
+ const prototypePair=a.record_type==='prototype_analysis_ready'&&b.record_type==='prototype_analysis_ready'&&a.pair_id===b.pair_id&&a.observation_role==='T1'&&b.observation_role==='T2'&&a.available_locally&&b.available_locally&&a.localPath&&b.localPath;
+ const row=(role,s)=>`<div class="pairrow"><div><div class="rtitle">${role} · ${escapeHtml(s.id)}</div><div class="pair-m mono">${s.date.toISOString().slice(0,10)} · ${escapeHtml(s.sensor.name)} · ${s.record_type==='prototype_analysis_ready'?escapeHtml(s.source):'Archive catalog record'} · ${s.available_locally&&s.localPath?'LOCAL RASTER':'metadata only'}</div></div></div>`;
  box.innerHTML=row('T1',a)+row('T2',b)+`<div class="pairrow" style="border:none"><span class="badge ${prototypePair?'lo':'m'}">${prototypePair?'CONFIGURED PROTOTYPE ROLES · ORDER PRESERVED':'ARCHIVE OBSERVATIONS'}</span><span class="pair-gap" style="margin-left:auto">${gap} day gap</span></div>`+
-  (prototypePair?'<div class="tip">These are existing analysis-ready prototype assets, not archive scene downloads. Supplied T1/T2 roles are preserved and may not be chronological.</div>':'');
+  (prototypePair?'<div class="tip">These existing analysis-ready observations are supplied in chronological T1 → T2 order.</div>':'');
  btn.disabled=!(prototypePair||(a.record_type!=='prototype_analysis_ready'&&b.record_type!=='prototype_analysis_ready'&&a.sensor.id==='s2'&&b.sensor.id==='s2'&&a.available_locally&&b.available_locally&&a.localPath&&b.localPath));
 };
 
@@ -569,6 +387,7 @@ go=function(id){
 
 function sendToAnalysis(i){
  const r=S.results[i];if(!r)return;
+ if(r._demo&&window.DemoMode&&DemoMode.enabled){DemoMode.openInvestigation(r);return}
  if(!Number.isFinite(r.lat)||!Number.isFinite(r.lng)){toast('This result has no geographic coordinates; it cannot seed a scene query','error');return}
  App.staged=r;
  addFeed('<span class="tag c">STAGE</span><b>Analyst 01</b> staged scene '+r.id+' · '+r.region+' for multi-temporal analysis');
@@ -593,7 +412,11 @@ queryArchive=async function(){
     sensor:sen,localPath:item.local_path};
   }).sort((a,b)=>(a.date||0)-(b.date||0));
   if(SMAP&&SMAP.setScenes)SMAP.setScenes(S4.scenes);
-  S4.t1=null;S4.t2=null;renderTimeline();renderPair();
+  S4.t1=null;S4.t2=null;
+  const configuredT1=S4.scenes.findIndex(s=>s.record_type==='prototype_analysis_ready'&&s.observation_role==='T1'&&s.available_locally&&s.localPath);
+  const configuredT2=S4.scenes.findIndex(s=>s.record_type==='prototype_analysis_ready'&&s.observation_role==='T2'&&s.available_locally&&s.localPath);
+  if(configuredT1>=0&&configuredT2>=0&&S4.scenes[configuredT1].pair_id&&S4.scenes[configuredT1].pair_id===S4.scenes[configuredT2].pair_id){S4.t1=configuredT1;S4.t2=configuredT2;}
+  renderTimeline();renderPair();
   const nLocal=S4.scenes.filter(s=>s.available_locally&&s.localPath).length;
   const nPrototype=S4.scenes.filter(s=>s.record_type==='prototype_analysis_ready').length;
   const nArchive=response.count-nPrototype;
@@ -666,8 +489,8 @@ renderPair=function(){
  const gap=Math.round((b.date-a.date)/864e5);
  const sameSensor=a.sensor.id===b.sensor.id;
  const ready=sameSensor&&a.sensor.id==='s2'&&a.available_locally&&b.available_locally&&a.localPath&&b.localPath;
- box.innerHTML=`<div class="pairrow"><div><div class="rtitle">T1 · ${escapeHtml(a.id||'Scene')}</div><div class="pair-m mono">${a.date.toISOString().slice(0,10)} · ${escapeHtml(a.sensor.name)} · ${a.available_locally?'local raster available':'no local raster'}</div></div></div>
-  <div class="pairrow"><div><div class="rtitle">T2 · ${escapeHtml(b.id||'Scene')}</div><div class="pair-m mono">${b.date.toISOString().slice(0,10)} · ${escapeHtml(b.sensor.name)} · ${b.available_locally?'local raster available':'no local raster'}</div></div></div>
+ box.innerHTML=`<div class="pairrow"><div><div class="rtitle">T1 · ${escapeHtml(a.id||'Scene')}</div><div class="pair-m mono">${a.date.toISOString().slice(0,10)} · ${escapeHtml(a.sensor.name)} · ${a.available_locally&&a.localPath?'LOCAL RASTER':'metadata only'}</div></div></div>
+  <div class="pairrow"><div><div class="rtitle">T2 · ${escapeHtml(b.id||'Scene')}</div><div class="pair-m mono">${b.date.toISOString().slice(0,10)} · ${escapeHtml(b.sensor.name)} · ${b.available_locally&&b.localPath?'LOCAL RASTER':'metadata only'}</div></div></div>
   <div class="pairrow" style="border:none"><span class="badge ${ready?'lo':'m'}">${ready?'READY FOR BIT ANALYSIS':'NOT ANALYZABLE WITH LOCAL INPUTS'}</span><span class="pair-gap" style="margin-left:auto">${gap} day gap</span></div>
   ${ready?'':'<div class="tip">The API requires two local Sentinel-2 raster paths. These selected catalog entries do not provide them.</div>'}`;
  btn.disabled=!ready;
@@ -677,8 +500,9 @@ runAna=function(){
  if(S4.t1==null||S4.t2==null)return;
  const a=S4.scenes[S4.t1],b=S4.scenes[S4.t2];
  if(!a.localPath||!b.localPath||a.sensor.id!=='s2'||b.sensor.id!=='s2')return;
+ if(a.record_type==='prototype_analysis_ready'&&(a.observation_role!=='T1'||b.observation_role!=='T2'||a.pair_id!==b.pair_id))return;
  App.pair={a,b,pin:{lat:S4.pin.lat,lng:S4.pin.lng,rad:S4.rad},name:S4.name,aoiId:S4.aoiId||null};
- go('analysis');
+ startDetection();
 };
 
 registerAOI=async function(){
@@ -699,5 +523,5 @@ go=function(id){_sceneGoPhase9(id);
 injectScene();
 injectExplore();
 SMAP=makeMap({view:'scene',body:'sceneMapBody',lat:22.7774,lng:75.8247,z:9,pins:[],onPick:scenePick,onPinHit:snapPin,coordsEl:'scCoords',gsdEl:'scGsd'});
-EMAP=makeMap({view:'map',body:'exploreMapBody',lat:22.7774,lng:75.8247,z:9,layers:{density:false},pins:[],blobs:[],onPick:explorePick,onPinHit:a=>{openInv(a.id)},coordsEl:'exCoords',gsdEl:'exGsd'});
+EMAP=makeMap({view:'map',body:'exploreMapBody',lat:22.7774,lng:75.8247,z:9,pins:[],onPick:explorePick,onPinHit:a=>{openInv(a.id)},coordsEl:'exCoords',gsdEl:'exGsd'});
 window.AvlokanMaps={scene:SMAP,explorer:EMAP};

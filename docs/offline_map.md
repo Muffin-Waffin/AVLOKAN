@@ -1,29 +1,50 @@
-# AVLOKAN offline map
+﻿# AVLOKAN MapLibre map
 
-AVLOKAN uses Leaflet 1.9.4 from `frontend/vendor/leaflet`. The browser loads both the library and its marker assets locally; no CDN is referenced by the frontend.
+## Renderer and basemap
 
-## Local basemap
+AVLOKAN uses locally bundled MapLibre GL JS 5.24.0 (`frontend/vendor/maplibre-gl`) through the shared adapter `frontend/js/modules/maplibre-map.js`. The dashboard, scene selection, and map explorer each use this renderer. MapLibre navigation controls provide zoom; compact attribution controls remain visible.
 
-The default tile layer is `assets/map-tiles/{z}/{x}/{y}.png`, served relative to the frontend root. It is a bounded XYZ raster set downloaded from OpenStreetMap's standard tile service during setup. OSM attribution is shown in the Leaflet control.
+The default development style is OpenFreeMap Positron, loaded from the documented endpoint `https://tiles.openfreemap.org/styles/positron`. Positron provides a bright, restrained basemap with light land, blue water, muted roads, subtle boundaries, and place labels. OpenFreeMap is the basemap/style source only. The style, vector tiles, glyphs, and sprites are remote resources in this mode. The development map therefore depends on OpenFreeMap and is NOT fully offline.
 
-The checked-in prototype coverage is generated from the existing georeferenced Phase 2 Sentinel-2 raster `data/processed/phase2_validation/s2_reflectance_512.tif`. No external map tiles are downloaded. The tile set is bounded around the real AVLOKAN Sentinel-2 scene footprint and `data/aoi/test_area.geojson`:
+Use `?map=offline` to select the staged local style/data (or set `window.AVLOKAN_MAP_MODE = 'offline'` before initializing maps). This mode uses India-PBF-derived GeoJSON in `frontend/assets/osm/` and the existing Sentinel-2 raster tiles in `frontend/assets/map-tiles/`. The GeoJSON is a bounded Indore/prototype-region subset, not a full-India browser dataset. Detailed local roads and places load only at higher zooms. No external style, tile, sprite, or glyph service is configured in this mode. Other application API calls are separate; backend-dependent features still need the local API.
 
-- west/east: 74.7°E to 76.4°E
-- south/north: 22.2°N to 23.8°N
-- zoom: 7 through 14; zooms 11–14 contain only source-intersecting detail tiles
-- tiles: 82
-- raster storage: approximately 1.1 MB
+## Style label hierarchy
 
-The basemap source is the existing local Sentinel-2 prototype raster, displayed as RGB satellite context. Attribution is `AVLOKAN local Sentinel-2 prototype raster · Copernicus Sentinel data`. The local copy is intended for this SIH prototype and is not a global road map archive.
+The hosted Positron style was inspected at runtime. The frontend adjusts its actual style layer IDs without changing hosted geometry layers:
 
-To regenerate the set, reproject the existing Phase 2 Sentinel-2 raster to EPSG:3857 and write XYZ PNGs into `frontend/assets/map-tiles/{z}/{x}/{y}.png`, then update this document if the bounds, source, or size changes. Runtime uses only the local files. A missing tile leaves the geographic map and interactions usable and reports partial local coverage in the map footer.
+- `label_other` (generic/POI labels) is hidden.
+- `label_village` begins at zoom 12; `label_town` begins at zoom 9.
+- City and capital labels begin at zoom 6; state/country labels retain the style ranges.
+- Waterway/line water labels begin at zoom 12; point water labels at zoom 11.
+- Major road names begin at zoom 14, minor road names at zoom 16, and paths at zoom 17.
+- All hosted symbol layers explicitly disable text and icon overlap where applicable; normal collision handling remains enabled.
 
-## AVLOKAN geometry mapping
+The local style uses off-white land, pale blue water, muted roads, subtle boundaries, and priority-ranked local place labels. Local towns appear from zoom 9 and village/locality names from zoom 12. Satellite and analysis imagery remain independent overlay layers.
 
-Backend AOIs currently expose latitude, longitude, and `radius_km`, so the UI renders an explicitly radius-derived Leaflet circle and center marker. It does not present that circle as a surveyed polygon. Scene search records expose WGS84 `bbox` values and optional GeoJSON `footprint` values. Footprints are rendered as polygons; a bbox is rendered as a rectangle labeled “bbox-derived display geometry”. The Phase 10 prototype observation bboxes are transformed by the backend from the source EPSG:32643 rasters.
+## AVLOKAN overlays
 
-The map helper also accepts analysis preview URLs with the backend response's WGS84 `spatial.bbox`, so a probability or candidate mask preview can be overlaid using the source raster extent rather than screen coordinates. Candidate records remain pixel/CRS data unless the backend supplies geographic candidate coordinates.
+Each map keeps its own MapLibre instance. Shared GeoJSON sources and layers render AVLOKAN content above the basemap:
 
-## Offline behavior and limitations
+- registered AOI points/radii and selected AOI geometry
+- T1/T2 or archive scene footprints, selected scene, and investigation point/radius
+- search results, selected result, and similar-site markers
+- candidate geometries
+- georeferenced analysis preview imagery, using the supplied WGS84 bounds
+- local Sentinel-2 raster, independently toggleable as Satellite
 
-Leaflet initializes without probing an external service. Panning, zooming, AOI circles, scene footprints, and local API backed metadata continue to work without internet access. The basemap is intentionally limited to the prototype region and zoom range. The API itself remains a separate local dependency at `127.0.0.1:8000` when backend data is required.
+Basemap and satellite imagery remain separate. Existing map click/pick behavior, scene selection, centering/fitting, overlays, coordinate display, and controls are connected through the shared adapter.
+
+## Attribution and licensing
+
+OpenFreeMap style/source attribution is read from the style and displayed by MapLibre's attribution control. Local OSM-derived features are credited to `© OpenStreetMap contributors`. OSM data is under the Open Database License (ODbL); see [OpenStreetMap copyright and license](https://www.openstreetmap.org/copyright) for attribution and share-alike requirements. Local Sentinel-2 imagery retains Copernicus attribution.
+
+## Offline and storage status
+
+- MapLibre runtime, CSS, and license are in `frontend/vendor/maplibre-gl/`; `frontend/package.json` and lockfile pin the npm dependency.
+- Default development mode requests remote OpenFreeMap style/vector resources; it is not offline.
+- `?map=offline` uses local GeoJSON and raster resources for prototype-region coverage only.
+- This change does not rebuild local map data, satellite imagery, or the India source PBF.
+
+## Development checks
+
+Serve the frontend as usual. Open `/?map=offline` to validate local map assets and `/?map=openfreemap` (or `/`) to validate OpenFreeMap Positron. In the browser Network panel, hosted mode should show OpenFreeMap requests; offline map mode should show no requests to non-local hosts for map assets.

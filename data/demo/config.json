@@ -1,0 +1,16 @@
+{
+  "enabled_by": "AVLOKAN_DEMO_MODE=true",
+  "demo_text_query": "newly built structures near a river",
+  "demo_image_scene": "s2_demo__tile_000000",
+  "demo_image_path": "data/processed/phase2_validation/tiles/s2_demo/tile_000000.tif",
+  "t1_id": "avlokan-prototype-s2-t1-20250329",
+  "t2_id": "avlokan-prototype-s2-t2-20250324",
+  "t1_date": "2025-03-29",
+  "t2_date": "2025-03-24",
+  "t1_path": "data/processed/phase2_validation/s2_reflectance_512.tif",
+  "t2_path": "data/processed/phase6_validation/s2_20250324_512.tif",
+  "analysis_id": "1201535bfe3a41b189653b8533253146",
+  "analysis_metadata": "data/processed/phase10_change_analysis/1201535bfe3a41b189653b8533253146_metadata.json",
+  "aoi": [75.79966202098623, 22.754106944804505, 75.8498135819418, 22.800612416259163],
+  "aoi_crs": "EPSG:4326"
+}

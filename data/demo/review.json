@@ -1,0 +1,5 @@
+{
+  "candidate_id":"demo-indore-20250329-20250324:2",
+  "decisions_supported":["confirm","reject"],
+  "state_file":"data/demo/runtime/state.json (generated locally; ignored by Git)"
+}

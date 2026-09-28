@@ -1,15 +1,15 @@
-/* AVLOKAN dashboard map. The map is geographic Leaflet with local XYZ tiles. */
+/* AVLOKAN dashboard map rendered by the shared MapLibre adapter. */
 let dashboardMap = null;
 let mapInitialized = false;
 
 function initMap() {
   if (mapInitialized) { if (dashboardMap) dashboardMap.invalidate(); return; }
   const body = document.getElementById('mapBody');
-  if (!body || !window.L || !window.createAvlokanMap) return;
+  if (!body || !window.maplibregl || !window.createAvlokanMap) return;
   dashboardMap = createAvlokanMap({
     container: body, center: [22.7774, 75.8247], zoom: 9, coordsEl: 'mapCoords',
     onPinHit: a => openInv(a.id),
-    onTileError: () => { const el = document.getElementById('mapGsd'); if (el) el.textContent = 'LOCAL BASEMAP · partial coverage'; }
+    onTileError: () => { const el = document.getElementById('mapGsd'); if (el) el.textContent = 'BASEMAP RESOURCE ERROR'; }
   });
   mapInitialized = !!dashboardMap;
   window.dashboardMap = dashboardMap;
@@ -18,6 +18,11 @@ function initMap() {
 function renderMap() { if (dashboardMap) dashboardMap.invalidate(); }
 function zoomStep(delta) { if (dashboardMap) dashboardMap.zoom(delta); }
 function mapHome() { if (dashboardMap) dashboardMap.home(); }
-function toggleLayer(el) { el.classList.toggle('on'); }
-function pump() { requestAnimationFrame(pump); }
-requestAnimationFrame(pump);
+function toggleLayer(el) {
+  if (dashboardMap) {
+    if (el.dataset.l === 'optical') dashboardMap.toggleSatellite();
+    else if (el.dataset.l === 'labels') dashboardMap.toggle('labels');
+    else if (el.dataset.l === 'radius') dashboardMap.toggle('registry');
+  }
+  el.classList.toggle('on');
+}

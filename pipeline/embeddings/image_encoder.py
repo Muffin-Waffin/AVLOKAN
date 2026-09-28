@@ -46,7 +46,16 @@ class ImageEncoder:
 
     def _read(self, tile_path: str | Path) -> Image.Image:
         started = perf_counter()
-        image = read_sentinel2_rgb(tile_path)
+        path = Path(tile_path)
+        if path.suffix.lower() in {".png", ".jpg", ".jpeg", ".webp"}:
+            with Image.open(path) as img:
+                image = img.convert("RGB")
+        else:
+            try:
+                image = read_sentinel2_rgb(path)
+            except Exception:
+                with Image.open(path) as img:
+                    image = img.convert("RGB")
         self.tile_read_seconds += perf_counter() - started
         return image
 

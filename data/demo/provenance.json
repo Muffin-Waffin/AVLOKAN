@@ -1,0 +1,17 @@
+{
+  "classification": "mixed REAL local observations and analysis outputs with demo-staged presentation",
+  "source": "Local Sentinel-2 prototype analysis-ready observations (2025-03-24 / 2025-03-29) and Sentinel-1A SAR (2025-03-27)",
+  "sensor": "Sentinel-2 & Sentinel-1 SAR",
+  "processing_pipeline": "AVLOKAN BIT change-analysis output + Sentinel-1 dual-pol terrain-corrected SAR evidence",
+  "metadata_path": "data/processed/phase10_change_analysis/1201535bfe3a41b189653b8533253146_metadata.json",
+  "sar_raster": "data/processed/sar/aoi_test/s1_aoi_terrain_corrected.tif",
+  "checkpoint_sha256": "8a75efe679aab0d1624888906cf3c9ed756772b7f3e92d439b7d0fb0fe3cac4b",
+  "threshold": 0.96,
+  "change_interpretation": "Demonstration candidate · construction",
+  "sar_fallback": "Available · real local Sentinel-1A VV/VH terrain-corrected evidence",
+  "sensor_agreement": "HIGH AGREEMENT (Optical HIGH 0.9861 · SAR HIGH 0.5759)",
+  "evidence_score": 84.7,
+  "evidence_score_formula": "0.45 * optical + 0.25 * sar + 0.15 * agreement + 0.15 * quality (uncalibrated)",
+  "review_endpoint": "/api/demo/review",
+  "audit_endpoint": "/api/audit"
+}

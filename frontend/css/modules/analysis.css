@@ -25,3 +25,148 @@
 .api-pair-images img,.api-artifact img{display:block;width:100%;height:auto;max-height:360px;object-fit:contain;background:#e9e2cf}
 .api-pair-images figcaption,.api-artifact figcaption{padding:8px 10px;font-size:10px;color:var(--muted);font-family:ui-monospace,monospace}
 @media(max-width:800px){.api-artifact-grid{grid-template-columns:1fr}.api-pair-images{grid-template-columns:1fr}}
+
+/* Result readability: preserve details while allowing long paths and IDs to wrap. */
+.api-pair-images figcaption,.api-artifact figcaption{line-height:1.4;letter-spacing:.35px}
+.api-pair-images figcaption b,.api-artifact figcaption{font-weight:800;color:var(--text)}
+.api-artifact figcaption{text-transform:uppercase;font-size:10px}
+.analysis-candidate{align-items:center;gap:14px;padding:14px 12px;margin:0 -4px;border-bottom:1px solid var(--line)}
+.analysis-candidate-name{font-size:15px;line-height:1.35;color:var(--text)}
+.analysis-candidate-metrics{font-size:11px;line-height:1.55;color:var(--muted);margin-top:4px;overflow-wrap:anywhere}
+.analysis-candidate-actions{display:flex;gap:8px;flex:0 0 auto}
+.analysis-candidate-actions .act{flex:0 0 auto;min-width:88px;min-height:38px;padding:8px 13px;font-size:11px}
+.analysis-candidate-actions .act.ok{background:rgba(124,154,120,.19)}
+.analysis-candidate-actions .act.no{background:rgba(201,141,104,.16)}
+.provenance-panel .ev-row{display:grid;grid-template-columns:minmax(94px,.7fr) minmax(0,1.3fr);align-items:start;gap:10px}
+.provenance-panel .ev-row .v{min-width:0;text-align:left;overflow-wrap:anywhere;word-break:break-word;line-height:1.45}
+.provenance-panel .ev-row .k{min-width:0;line-height:1.45}
+.change-probability-panel .panel-b{display:flex;flex-direction:column;align-items:center;padding:10px 17px 16px}
+.heatmap-subtitle{align-self:flex-start;font-size:12px;color:var(--muted);margin:0 0 12px;line-height:1.5}
+.probability-composite{display:grid;grid-template-areas:"overlay";width:fit-content;max-width:100%;margin:0 auto;background:#e9e2cf;border:1px solid var(--line);border-radius:10px;overflow:hidden;line-height:0}
+.probability-composite img{grid-area:overlay;display:block;position:static;width:auto;height:auto;max-height:360px;max-width:100%;object-fit:contain}
+.probability-composite img+img{pointer-events:none}
+.map-probability-control{position:absolute;z-index:8;top:54px;left:12px;display:flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid rgba(41,55,53,.24);border-radius:8px;background:rgba(255,255,255,.94);box-shadow:0 2px 9px rgba(26,38,37,.18);font:700 11px/1.2 'Segoe UI',sans-serif;color:#293b3a;cursor:pointer}
+.map-probability-control[hidden]{display:none}
+.map-probability-control input{width:15px;height:15px;margin:0;accent-color:#e65a32}
+.heatmap-legend{display:grid;grid-template-columns:auto minmax(100px,1fr) auto;align-items:center;gap:9px;width:min(100%,440px);margin:14px auto 0;font-size:9px;font-weight:800;letter-spacing:.45px;color:var(--muted)}
+.heatmap-legend span{white-space:nowrap}
+.heatmap-legend i{height:10px;border-radius:99px;border:1px solid rgba(50,50,50,.1);background:linear-gradient(90deg,rgba(255,210,48,0),#ffd230,#ff941c,#f44126,#b6122a)}
+.heatmap-legend i::after{content:'transparent → yellow → orange → red';display:block;position:relative;top:11px;text-align:center;font-size:8px;font-style:normal;font-weight:700;letter-spacing:.2px;color:var(--muted);white-space:nowrap}
+.heatmap-toggle{display:flex;align-items:center;gap:8px;width:max-content;margin:12px auto 0;font-size:12px;font-weight:700;color:var(--text);cursor:pointer}
+.heatmap-toggle input{accent-color:#e65a32;width:16px;height:16px}
+@media(max-width:700px){.analysis-candidate{align-items:stretch;flex-direction:column}.analysis-candidate-actions{width:100%}.analysis-candidate-actions .act{flex:1}.provenance-panel .ev-row{grid-template-columns:minmax(78px,.65fr) minmax(0,1.35fr)}}
+
+
+/* Multi-sensor mode & SAR Fallback */
+.sensor-mode-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-top: 14px;
+}
+.sensor-mode-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .15s ease;
+}
+.sensor-mode-btn:hover {
+  background: var(--panel2);
+  color: var(--text);
+}
+.sensor-mode-btn.active {
+  background: rgba(123, 166, 163, .2);
+  border-color: var(--cyan-d);
+  color: var(--cyan-d);
+}
+.sensor-badge {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: .4px;
+  text-transform: uppercase;
+}
+.sensor-badge.available {
+  background: rgba(124, 154, 120, .25);
+  color: var(--green-d);
+}
+.sensor-badge.fused {
+  background: rgba(211, 166, 86, .25);
+  color: var(--gold-d);
+}
+.evidence-score-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(123, 166, 163, .16);
+  border: 1px solid rgba(123, 166, 163, .4);
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--cyan-d);
+}
+.matrix-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin: 12px 0;
+}
+.matrix-cell {
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 11.5px;
+}
+.matrix-cell.highlight {
+  background: rgba(124, 154, 120, .18);
+  border-color: var(--green-d);
+}
+.matrix-cell .mc-title {
+  font-weight: 800;
+  font-size: 12px;
+  margin-bottom: 3px;
+}
+.matrix-cell .mc-desc {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.4;
+}
+.formula-box {
+  background: var(--panel2);
+  border-left: 3px solid var(--cyan-d);
+  border-radius: 0 8px 8px 0;
+  padding: 10px 14px;
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  color: var(--text);
+  margin: 10px 0;
+  line-height: 1.5;
+}
+.disclaimer-box {
+  background: rgba(211, 166, 86, .1);
+  border: 1px solid rgba(211, 166, 86, .35);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 8px;
+  line-height: 1.45;
+}

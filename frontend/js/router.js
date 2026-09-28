@@ -8,8 +8,8 @@ function go(id){
  document.querySelectorAll('.snav').forEach(n=>n.classList.toggle('active',n.dataset.go===id));
  document.getElementById('crumb').innerHTML='AVLOKAN / <b>'+TITLES[id]+'</b>';
  App.route=id;window.scrollTo(0,0);
- if(id==='scene'&&window.AvlokanMaps?.scene)setTimeout(()=>window.AvlokanMaps.scene.invalidate(),0);
- if(id==='map'&&window.AvlokanMaps?.explorer)setTimeout(()=>window.AvlokanMaps.explorer.invalidate(),0);
+ if(id==='scene'&&window.AvlokanMaps?.scene)setTimeout(()=>{window.AvlokanMaps.scene.invalidate();window.AvlokanMaps.scene.focusAnalysisOverlay?.()},0);
+ if(id==='map'&&window.AvlokanMaps?.explorer)setTimeout(()=>{window.AvlokanMaps.explorer.invalidate();window.AvlokanMaps.explorer.focusAnalysisOverlay?.()},0);
  if(id==='dashboard'&&window.loadApiDashboard)loadApiDashboard();
  if(window.innerWidth<=900)toggleSide(false)}
 function toggleSide(force){
@@ -24,7 +24,9 @@ function doLogin(){
   document.getElementById('view-login').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
   toast('Local demo console opened. The backend does not authenticate users.','info');
-  setTimeout(()=>{initMap();animCounters()},60)},1100)}
+  setTimeout(()=>{initMap();animCounters();
+   if(location.hash==='#detection'&&window.restoreCurrentAnalysis)window.restoreCurrentAnalysis().then(restored=>{if(restored)go('detection')});
+  },60)},1100)}
 function logout(){
  document.getElementById('app').classList.add('hidden');
  document.getElementById('view-login').classList.remove('hidden');

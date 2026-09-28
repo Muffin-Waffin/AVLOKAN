@@ -24,7 +24,7 @@
 
   <!-- Color Palette Studio Stylesheet -->
   <link rel="stylesheet" href="css/modules/color-studio.css">
-  <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="vendor/maplibre-gl/maplibre-gl.css">
 </head>
 <body>
 
@@ -108,19 +108,12 @@
 
         <div class="dash-map-row">
           <div class="panel map-panel">
-            <div class="panel-h"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>AOI Monitor <span class="mh-sub">local Sentinel-2 basemap · backend AOI points</span> <span class="mh-live"><span class="dot"></span>LOCAL</span></div>
+            <div class="panel-h"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>AOI Monitor <span class="mh-sub">OpenFreeMap context · local satellite overlay</span> <span class="mh-live"><span class="dot"></span>MAP</span></div>
             <div class="map-body" id="mapBody">
-              <canvas id="eoMap"></canvas>
               <div class="map-chips">
-                <span class="mchip on" data-l="optical" onclick="toggleLayer(this)">LOCAL BASEMAP</span>
+                <span class="mchip" data-l="optical" onclick="toggleLayer(this)">SATELLITE</span>
                 <span class="mchip on" data-l="radius" onclick="toggleLayer(this)">AOI RADIUS</span>
-                <span class="mchip on" data-l="heat" onclick="toggleLayer(this)">AOI RADIUS</span>
                 <span class="mchip on" data-l="labels" onclick="toggleLayer(this)">LABELS</span>
-              </div>
-              <div class="map-zoom">
-                <button class="zbtn" onclick="zoomStep(1)">+</button>
-                <button class="zbtn" onclick="zoomStep(-1)">−</button>
-                <button class="zbtn" onclick="mapHome()" title="Reset view">⌂</button>
               </div>
               <div class="map-coords mono" id="mapCoords">—</div>
               <div class="map-legend">
@@ -215,13 +208,14 @@
   <script src="js/data.js"></script>
   <script src="js/helpers.js"></script>
   <script src="js/api-client.js"></script>
+  <script src="js/demo.js"></script>
   <script src="js/router.js"></script>
   <script src="js/topo.js"></script>
 
   <!-- Feature Modules -->
   <script src="js/modules/dashboard.js"></script>
-  <script src="vendor/leaflet/leaflet.js"></script>
-  <script src="js/modules/offline-map.js"></script>
+  <script src="vendor/maplibre-gl/maplibre-gl.js"></script>
+  <script src="js/modules/maplibre-map.js"></script>
   <script src="js/modules/map-engine.js"></script>
   <script src="js/modules/investigate.js"></script>
   <script src="js/modules/search.js"></script>

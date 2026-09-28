@@ -21,5 +21,4 @@ document.getElementById('dashDate').textContent=new Date()
 tickClock();setInterval(tickClock,1000);
 drawTopo();
 window.addEventListener('resize',()=>{drawTopo();if(dashboardMap)dashboardMap.invalidate();needRender=true});
-requestAnimationFrame(pump);
 loadApiDashboard();

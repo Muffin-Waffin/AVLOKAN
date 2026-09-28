@@ -16,7 +16,7 @@
 .rcard.sel .cmp-check{background:var(--cyan);border-color:var(--cyan);color:#fbf8ef}
 .rgrid.compact{grid-template-columns:repeat(6,1fr);gap:10px}
 .rgrid.compact .rbody{padding:8px 9px;gap:4px}
-.rgrid.compact .rtitle{font-size:11px}
+.rgrid.compact .rtitle{font-size:12px}
 .rgrid.compact .rmeta{font-size:9.5px}
 .cmp-pair{display:flex;gap:10px;align-items:center;margin-bottom:12px}
 .cmp-pv{flex:1;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 11px;min-width:0}

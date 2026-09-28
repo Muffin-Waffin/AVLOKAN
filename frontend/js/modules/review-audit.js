@@ -75,6 +75,10 @@ logout=function(){addFeed('<span class="tag c">SESSION</span><b>Analyst 01</b> s
 /* ---- REVIEW QUEUE ---- */
 function renderReview(){
  const el=document.getElementById('view-review');
+ if(window.DemoMode&&DemoMode.enabled){
+  el.innerHTML=`<div class="flowstrip">${flowStrip('review')}</div><div class="res-head"><div><div class="res-q">Analyst Review · demo candidate</div><div class="res-meta mono">Existing BIT component 2 · mean probability 0.9861 · 526 pixels · decision is written to the local API audit chain</div></div></div><div class="cand-card"><div class="cand-head"><span class="badge m">REAL BIT CANDIDATE</span><div class="cand-name">Indore prototype · component 2</div></div><div class="cand-actions"><button class="act ok" onclick="decideDemoReview('confirm')">✓ Confirm</button><button class="act no" onclick="decideDemoReview('reject')">× Reject</button></div><div class="tip" id="demoDecisionState">Loading saved review decision…</div></div><button class="btn btn-ghost" style="width:auto;margin-top:12px" onclick="renderAudit()">Open audit trail</button><button class="btn btn-primary" style="width:auto;margin:12px" onclick="DemoMode.export()">Export Investigation</button>`;
+  DemoMode.audit().then(s=>{const target=document.getElementById('demoDecisionState');if(target)target.textContent=s.decision?'Recorded '+s.decision.decision.toUpperCase()+' by '+s.decision.analyst+' at '+s.decision.timestamp:'No analyst decision recorded yet.'}).catch(()=>{});return;
+ }
  const counts={all:RQ.items.length,high:0,mid:0,low:0,flagged:0};
  RQ.items.forEach(c=>{counts[priOf(c.conf)]++;if(c.flagged)counts.flagged++});
  const list=RQ.items
@@ -325,6 +329,8 @@ renderReview=async function(){
  }catch(error){el.innerHTML=`<div class="flowstrip">${flowStrip('review')}</div><div class="panel rev-empty" role="alert">Review queue unavailable: ${escapeHtml(apiError(error))}</div>`}
 };
 
+window.decideDemoReview=async decision=>{try{await DemoMode.review(decision,'1201535bfe3a41b189653b8533253146:2');toast('Decision recorded in local audit chain','success');renderReview();}catch(e){toast(apiError(e),'error')}};
+
 decideReview=async function(id,decision,button){
  if(button)button.classList.add('disabled');if(button)button.style.pointerEvents='none';
  try{
@@ -352,8 +358,8 @@ renderAudit=async function(){
    <div class="res-meta mono">Server SHA-256 event chain · ${integrity.verified_events??0} events verified</div></div>
    <span class="chain-pill ${integrity.intact?'chain-ok':'chain-bad'}">${integrity.intact?'SERVER CHAIN INTACT':'SERVER CHAIN INTEGRITY FAILURE'}</span></div>
    <div class="res-toolbar"><span class="rt-label">Filter</span>${chips.map(c=>`<span class="qchip${AF.filter===c[0]?' on':''}" onclick="AF.filter='${c[0]}';renderAudit()">${c[1]} · ${counts[c[0]]||0}</span>`).join('')}<span class="rt-spacer"></span><button class="rt-btn pri" onclick="exportAuditCSV()">↓ Export Ledger CSV</button></div>
-   <div class="panel"><div class="panel-b" style="padding-top:6px"><div class="arow head"><span>TIME</span><span>ACTION</span><span>DETAIL</span><span style="text-align:right">SHA-256</span></div>
-   ${items.length?items.map(event=>`<div class="arow"><span class="at">${escapeHtml(event.timestamp||'')}</span><span><span class="tag2 ${ACOL[event.action]||'c'}">${escapeHtml(event.action)}</span></span><span class="ad">${escapeHtml(event.detail||'')}</span><span class="ah">${escapeHtml((event.event_hash||'').slice(0,16))}</span></div>`).join(''):'<div class="tip">No audit events in this filter.</div>'}</div></div>`;
+   <div class="panel"><div class="panel-b audit-table-wrap" style="padding-top:6px"><div class="arow head"><span>TIME</span><span>ACTION</span><span>DETAIL</span><span>SHA-256</span></div>
+   ${items.length?items.map(event=>{const hash=event.event_hash||'';return `<div class="arow"><span class="at">${escapeHtml(event.timestamp||'')}</span><span class="audit-action"><span class="tag2 ${ACOL[event.action]||'c'}">${escapeHtml(event.action)}</span></span><span class="ad">${escapeHtml(event.detail||'')}</span><span class="ah" title="${escapeHtml(hash)}" aria-label="SHA-256 ${escapeHtml(hash)}">${escapeHtml(hash)}</span></div>`}).join(''):'<div class="tip">No audit events in this filter.</div>'}</div></div>`;
  }catch(error){el.innerHTML=`<div class="flowstrip">${flowStrip('audit')}</div><div class="panel rev-empty" role="alert">Audit ledger unavailable: ${escapeHtml(apiError(error))}</div>`}
 };
 
@@ -382,3 +388,6 @@ rejectChange=function(){
 injectReviewModal();
 renderReview();
 renderAudit();
+if(window.DemoMode)DemoMode.ready.then(enabled=>{if(enabled&&App.route==='review')renderReview()});
+const _demoRouteRender=go;
+go=function(id){_demoRouteRender(id);if(id==='review')renderReview();if(id==='audit')renderAudit()};

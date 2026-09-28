@@ -1,0 +1,8 @@
+{
+  "label": "DEMO SIMULATED DISCOVERY · no HDBSCAN execution",
+  "sites": [
+    {"rank":1,"scene_id":"s2_demo__tile_000001","similarity":0.924,"location":"Indore prototype area · NE","date":"2025-03-29","sensor":"Sentinel-2","thumbnail":"/api/tiles/s2_demo__tile_000001/preview","geometry":{"type":"Point","coordinates":[75.83727254030742,22.788858480792207]}},
+    {"rank":2,"scene_id":"s2_demo__tile_000002","similarity":0.901,"location":"Indore prototype area · SW","date":"2025-03-29","sensor":"Sentinel-2","thumbnail":"/api/tiles/s2_demo__tile_000002/preview","geometry":{"type":"Point","coordinates":[75.81219676115894,22.765863489839624]}},
+    {"rank":3,"scene_id":"s2_demo__tile_000003","similarity":0.873,"location":"Indore prototype area · SE","date":"2025-03-29","sensor":"Sentinel-2","thumbnail":"/api/tiles/s2_demo__tile_000003/preview","geometry":{"type":"Point","coordinates":[75.8371314628161,22.76573468923242]}}
+  ]
+}

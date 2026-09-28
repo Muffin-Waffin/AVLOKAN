@@ -31,6 +31,3 @@
 .ei-btns{display:flex;flex-direction:column;gap:7px;margin-top:11px}
 .ei-btns .rt-btn{justify-content:center}
 @media(max-width:1100px){.scene-layout{grid-template-columns:1fr}}
-.map-body .leaflet-container{height:100%;width:100%;font:12px Segoe UI,sans-serif;background:#dfe8e2}
-.map-body .leaflet-control-zoom{display:none}
-.map-body .leaflet-popup-content{line-height:1.5}

@@ -106,6 +106,9 @@ data/map/osm/tmp/
 # Keep provenance metadata
 !data/map/osm/metadata.json
 
+# Generated local Indore-area OSM demo data
+frontend/assets/osm/*.geojson
+
 # ============================================================
 # SNAP
 # ============================================================
@@ -262,6 +265,9 @@ blob-report/
 screenshots/
 e2e-artifacts/
 browser-artifacts/
+
+# Rehearsal-specific SIH demo review state; keep prepared demo JSON tracked.
+data/demo/runtime/state.json
 
 *.trace
 *.har

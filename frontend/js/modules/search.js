@@ -20,6 +20,7 @@ const REGIONS=[
  {id:'delhi',name:'Delhi NCR',lat:28.61,lng:77.21,jit:.35},
  {id:'chennai',name:'Chennai — Industrial Belt',lat:13.082,lng:80.27,jit:.35},
  {id:'ladakh',name:'Ladakh — Forward Sector',lat:34.15,lng:77.58,jit:.6},
+ {id:'indore',name:'Indore — AVLOKAN Prototype AOI',lat:22.77736,lng:75.82474,jit:.04},
  {id:'bhadla',name:'Bhadla — Solar Park',lat:27.541,lng:71.905,jit:.4},
  {id:'ranchi',name:'Ranchi — Jharkhand',lat:23.35,lng:85.3,jit:.4}];
 
@@ -36,7 +37,7 @@ const EXQ=[
  ['infrastructure buildup along LAC high altitude','LAC buildup'],
  ['expanding industrial sheds Chennai outskirts','industrial expansion']];
 
-const S={mode:'text',img:null,file:null,region:'all',sensors:{s2:true,s1:true,l8:true,bh:false},
+const S={mode:'text',img:null,file:null,demoScene:null,region:'all',sensors:{s2:true,s1:true,l8:true,bh:false},
  from:'',to:'',cloud:40,minSim:.0,topK:24,running:false,recent:[],results:[]};
 
 function injectSearch(){
@@ -61,18 +62,28 @@ function injectSearch(){
        <textarea id="qText" class="search-input" placeholder="Search the archive by meaning… e.g. new construction near Mumbai docks"></textarea></div>
       <div style="font-size:10px;letter-spacing:1.4px;text-transform:uppercase;color:var(--faint);font-weight:800;margin-bottom:8px">Try an example</div>
       <div class="ex-queries">${exChips}</div>
+      <div class="ex-queries"><span id="demoQueryChip" class="qchip" onclick="fillQ('Newly constructed buildings and infrastructure development')">Newly constructed buildings and infrastructure development</span></div>
      </div>
      <div id="qm-image" class="hidden">
-      <div class="field"><label>Reference tile <span>image → image · cosine similarity</span></label>
-       <div class="dropzone" id="dz" onclick="document.getElementById('fileIn').click()" ondragover="event.preventDefault();this.style.borderColor='var(--cyan2)'" ondragleave="this.style.borderColor=''" ondrop="event.preventDefault();if(event.dataTransfer.files[0])onQFile(event.dataTransfer.files[0])">
-        ${IC.up}
-        <div class="dz-t">Drop a satellite tile or click to browse</div>
-        <div class="dz-s">PNG / JPEG · encoded by the RemoteCLIP image tower</div>
+      <div style="font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--text);margin-bottom:12px">IMAGE-TO-IMAGE RETRIEVAL</div>
+      <div class="field">
+       <label>Upload Satellite Image <span>.tif, .tiff, .png, .jpg, .jpeg</span></label>
+       <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <label for="fileIn" class="btn btn-ghost" style="width:auto;cursor:pointer;display:inline-flex;align-items:center;gap:8px">
+         ${IC.up} Choose File
+        </label>
+        <input type="file" id="fileIn" accept=".tif,.tiff,.png,.jpg,.jpeg,image/tiff,image/png,image/jpeg" style="display:none" onchange="if(this.files[0])onQFile(this.files[0])">
+        <button type="button" class="btn btn-ghost" id="btnClearImage" style="width:auto;font-size:11px" onclick="clearQImage()" disabled>Clear</button>
        </div>
-       <input type="file" id="fileIn" accept="image/png,image/jpeg,image/webp,image/tiff,.tif,.tiff" class="hidden" onchange="onQFile(this.files[0])">
-       <img id="imgPreview" alt="query tile preview" style="display:none">
-       <div class="ex-queries" style="margin-top:10px">
-        <span class="qchip" onclick="clearQImage()">Clear image</span>
+       <div id="imgPreviewWrapper" style="display:none">
+        <img id="imgPreview" alt="query satellite tile preview" style="display:none">
+       </div>
+       <div id="imgSelectedBox" style="margin:10px 0;font-size:12px;color:var(--muted);display:none">
+        <div style="font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--faint);font-weight:800;margin-bottom:3px">Selected:</div>
+        <div id="imgSelectedName" class="mono" style="font-size:13px;font-weight:700;color:var(--text)">None</div>
+       </div>
+       <div style="margin-top:14px">
+        </button>
        </div>
       </div>
      </div>
@@ -113,14 +124,22 @@ function injectSearch(){
    </div>
   </div>
   <div>
-   <div class="panel" style="margin-bottom:16px">
-    <div class="panel-h">${IC.db} Index Status</div>
+   <div class="panel" style="margin-bottom:16px" id="incrementalIndexPanel">
+    <div class="panel-h" style="display:flex;justify-content:space-between;align-items:center">
+     <span>${IC.db} Incremental Index (FAISS)</span>
+     <span class="sensor-badge available" id="idxBadge">READY</span>
+    </div>
     <div class="panel-b">
-     <div class="srow"><span class="sk">Vectors</span><span class="sv c">1,284,920</span></div>
-     <div class="srow"><span class="sk">Embedding</span><span class="sv c">RemoteCLIP · 512-d</span></div>
-     <div class="srow"><span class="sk">Index type</span><span class="sv c">HNSW / SQ8</span></div>
-     <div class="srow"><span class="sk">Mean latency</span><span class="sv g">0.42 s</span></div>
-     <div class="srow"><span class="sk">Last sync</span><span class="sv a">14 min ago</span></div>
+     <div class="srow"><span class="sk">Index Architecture</span><span class="sv c">FAISS IndexIDMap2 · 512-d</span></div>
+     <div class="srow"><span class="sk">Indexed Scenes</span><span class="sv g mono" id="idxCountDisplay">4 scenes</span></div>
+     <div class="srow"><span class="sk">Staged Scene</span><span class="sv mono" style="font-size:10px" id="stagedSceneDisplay">s2_20250324__tile_000000</span></div>
+     <div class="srow"><span class="sk">Index Strategy</span><span class="sv a">In-place vector append (No full rebuild)</span></div>
+     <div id="idxResultNotice" style="margin-top:8px;font-size:11px;color:var(--muted);line-height:1.4">Staged Sentinel-2 L2A tile ready for incremental embedding and ingestion.</div>
+     <div style="display:flex;gap:6px;margin-top:12px;flex-wrap:wrap">
+      <button type="button" class="btn btn-primary" id="btnIngestScene" style="flex:1;min-width:110px;padding:6px 10px;font-size:11px" onclick="triggerIncrementalIngest()">+ Add Scene to Index</button>
+      <button type="button" class="btn btn-ghost" id="btnSearchIngested" style="padding:6px 10px;font-size:11px" onclick="searchIngestedScene()" title="Search for the newly ingested scene">🔍 Find Ingested</button>
+      <button type="button" class="btn btn-ghost" style="padding:6px 10px;font-size:11px" onclick="triggerIndexReset()" title="Reset index to baseline 4 scenes">↺ Reset</button>
+     </div>
     </div>
    </div>
    <div class="panel" style="margin-bottom:16px">
@@ -137,34 +156,90 @@ function injectSearch(){
     </div>
    </div>
   </div>
- </div>`}
+ </div>`;if(window.DemoMode)DemoMode.syncControls();refreshIndexingStatus()}
 
 function setQMode(m){S.mode=m;
- document.getElementById('mt-text').classList.toggle('on',m==='text');
- document.getElementById('mt-image').classList.toggle('on',m==='image');
- document.getElementById('qm-text').classList.toggle('hidden',m!=='text');
- document.getElementById('qm-image').classList.toggle('hidden',m!=='image')}
+ document.getElementById('mt-text')?.classList.toggle('on',m==='text');
+ document.getElementById('mt-image')?.classList.toggle('on',m==='image');
+ document.getElementById('qm-text')?.classList.toggle('hidden',m!=='text');
+ document.getElementById('qm-image')?.classList.toggle('hidden',m!=='image');
+ updateRunButtonState()}
+
+function updateImageQueryState(){
+ const btn=document.getElementById('btnSearchByImage');
+ if(btn)btn.disabled=!S.file;
+ const clr=document.getElementById('btnClearImage');
+ if(clr)clr.disabled=!S.file;
+ updateRunButtonState()}
+
+function updateRunButtonState(){
+ const runBtn=document.getElementById('runBtn');
+ if(!runBtn)return;
+ if(S.mode==='image'){
+  runBtn.innerHTML=IC.search+' Search by Image';
+  runBtn.disabled=!S.file;
+ }else{
+  runBtn.innerHTML=RUN_HTML;
+  runBtn.disabled=false;
+ }}
 
 function fillQ(q){document.getElementById('qText').value=q}
 
-function onQFile(f){
+async function onQFile(f){
  if(!f)return;
  const allowed=/\.(png|jpe?g|webp|tiff?)$/i.test(f.name||'');
- if(!allowed){toast('Choose a PNG, JPEG, WebP, or GeoTIFF file','error');return}
+ if(!allowed){toast('Choose a PNG, JPEG, WebP, or GeoTIFF file (.png, .jpg, .jpeg, .tif, .tiff)','error');return}
  if(f.size<1||f.size>20*1024*1024){toast('Image file must be no larger than 20 MiB','error');return}
- clearQImage();S.file=f;S.img=URL.createObjectURL(f);
- const p=document.getElementById('imgPreview'),zone=document.getElementById('dz');
- if(/\.tiff?$/i.test(f.name||'')){p.style.display='none';zone.querySelector('.dz-t').textContent='Selected GeoTIFF: '+f.name;zone.querySelector('.dz-s').textContent='Browser preview is unavailable; the backend will process this file.';zone.classList.remove('hidden')}
- else{p.src=S.img;p.style.display='block';zone.classList.add('hidden')}
- toast('Image ready to upload to AVLOKAN','success')}
+ clearQImage();
+ S.file=f;
+ const p=document.getElementById('imgPreview');
+ const pw=document.getElementById('imgPreviewWrapper');
+ const sb=document.getElementById('imgSelectedBox');
+ const sn=document.getElementById('imgSelectedName');
+ if(sn)sn.textContent=f.name;
+ if(sb)sb.style.display='block';
+
+ if(/\.tiff?$/i.test(f.name||'')){
+  try{
+   const form=new FormData();
+   form.append('file',f,f.name);
+   const res=await apiRequest('/api/preview/upload',{method:'POST',body:form});
+   const blob=await res.blob();
+   if(S.img&&S.img.startsWith('blob:'))URL.revokeObjectURL(S.img);
+   S.img=URL.createObjectURL(blob);
+   if(p){p.src=S.img;p.style.display='block'}
+   if(pw)pw.style.display='block';
+   toast('GeoTIFF preview rendered locally','success');
+  }catch(err){
+   if(p)p.style.display='none';
+   if(pw)pw.style.display='none';
+   toast('GeoTIFF preview unavailable; file will still be processed by backend','info');
+  }
+ }else{
+  if(S.img&&S.img.startsWith('blob:'))URL.revokeObjectURL(S.img);
+  S.img=URL.createObjectURL(f);
+  if(p){p.src=S.img;p.style.display='block'}
+  if(pw)pw.style.display='block';
+  toast('Image selected: '+f.name,'success');
+ }
+ updateImageQueryState();
+}
 
 function useSampleTile(){
  toast('Image search requires a real image file; generated demo tiles are not sent to the backend','error')}
 
-function clearQImage(){if(S.img&&S.img.startsWith('blob:'))URL.revokeObjectURL(S.img);S.img=null;S.file=null;
- const p=document.getElementById('imgPreview');p.style.display='none';
- const zone=document.getElementById('dz');zone.querySelector('.dz-t').textContent='Drop a satellite tile or click to browse';zone.querySelector('.dz-s').textContent='PNG / JPEG · encoded by the RemoteCLIP image tower';zone.classList.remove('hidden');
- const input=document.getElementById('fileIn');if(input)input.value=''}
+function clearQImage(){
+ if(S.img&&S.img.startsWith('blob:'))URL.revokeObjectURL(S.img);
+ S.img=null;S.file=null;S.demoScene=null;
+ const p=document.getElementById('imgPreview');if(p){p.style.display='none';p.src=''}
+ const pw=document.getElementById('imgPreviewWrapper');if(pw)pw.style.display='none';
+ const sb=document.getElementById('imgSelectedBox');if(sb)sb.style.display='none';
+ const sn=document.getElementById('imgSelectedName');if(sn)sn.textContent='None';
+ const input=document.getElementById('fileIn');if(input)input.value='';
+ updateImageQueryState();
+}
+
+function selectDemoImage(){}
 
 function setDatePreset(y){
  S.from=new Date(Date.now()-y*365*864e5).toISOString().slice(0,10);
@@ -181,23 +256,44 @@ function resetSearch(){
  S.region='all';document.getElementById('fRegion').value='all';
  S.sensors={s2:true,s1:true,l8:true,bh:false};
  SENSORS.forEach(s=>document.getElementById('sc-'+s.id).classList.toggle('on',S.sensors[s.id]));
- setDatePreset(1);
+ S.from='';S.to='';
+ const fFrom=document.getElementById('fFrom'),fTo=document.getElementById('fTo');
+ if(fFrom)fFrom.value='';if(fTo)fTo.value='';
  S.cloud=40;document.getElementById('fCloud').value=40;document.getElementById('cloudVal').textContent='40%';
-S.minSim=0;document.getElementById('fSim').value=0;document.getElementById('simVal').textContent='0.00';
+ S.minSim=0;document.getElementById('fSim').value=0;document.getElementById('simVal').textContent='0.00';
  S.topK=24;document.getElementById('fTopK').value='24';
+ S.qf={s2:true,s1:true,l8:true,bh:true};
  toast('Filters reset to defaults')}
+
+function normalizeSensor(raw){
+ if(!raw)return SENSORS[0];
+ const rawStr=(typeof raw==='object'?(raw.id||raw.tag||raw.name||''):String(raw)).trim().toLowerCase();
+ const rawTag=(typeof raw==='object'&&raw.tag?String(raw.tag):'').trim().toLowerCase();
+ const rawName=(typeof raw==='object'&&raw.name?String(raw.name):'').trim().toLowerCase();
+ const def=SENSORS.find(s=>
+  s.id===rawStr||s.tag.toLowerCase()===rawStr||s.tag.toLowerCase()===rawTag||
+  s.name.toLowerCase()===rawStr||s.name.toLowerCase()===rawName||
+  (s.id==='s2'&&(rawStr.includes('sentinel-2')||rawStr==='s2'||rawName.includes('sentinel-2')))||
+  (s.id==='s1'&&(rawStr.includes('sentinel-1')||rawStr==='s1'||rawName.includes('sentinel-1')))||
+  (s.id==='l8'&&(rawStr.includes('landsat')||rawStr==='l8'||rawName.includes('landsat')))||
+  (s.id==='bh'&&(rawStr.includes('bhuvan')||rawStr==='bh'||rawName.includes('bhuvan')))
+ )||SENSORS[0];
+ return {...def,...(typeof raw==='object'?raw:{}),id:def.id,tag:def.tag,name:def.name,col:def.col,cls:def.cls};
+}
 
 const RUN_HTML=IC.search+' Run Semantic Search';
 async function runSearch(){
  if(S.running)return;
  const q=document.getElementById('qText').value.trim();
  if(S.mode==='text'&&q.length<3){toast('Enter a query of at least 3 characters');return}
- if(S.mode==='image'&&!S.file){toast('Choose a real reference image first','error');return}
+ if(S.mode==='image'&&!S.file){toast('Choose a satellite image file first (.png, .jpg, .tif)','error');return}
  if(!Object.values(S.sensors).some(v=>v)){toast('Select at least one sensor');return}
  S.running=true;
  const btn=document.getElementById('runBtn');
- btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Searching archive…';
- const label=S.mode==='text'?'“'+q+'”':'image query';
+ const imgBtn=document.getElementById('btnSearchByImage');
+ if(btn){btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Searching archive…'}
+ if(imgBtn){imgBtn.disabled=true;imgBtn.innerHTML='<span class="spinner"></span> Searching archive…'}
+ const label=S.mode==='text'?'“'+q+'”':'image: '+(S.file?S.file.name:'uploaded image');
  document.getElementById('progPanel').classList.remove('hidden');
  document.getElementById('progSteps').innerHTML='<div class="pstep run"><span class="pnum"><span class="spinner"></span></span><span>Searching the local AVLOKAN index…</span><span class="pms"></span></div>';
  try{
@@ -208,12 +304,16 @@ async function runSearch(){
    const form=new FormData();form.append('file',S.file,S.file.name);
    Object.entries(payload).forEach(([k,v])=>{if(v!==null)form.append(k,Array.isArray(v)?v.join(','):String(v))});
    response=await apiRequest('/api/search/image',{method:'POST',body:form});
-  }else response=await apiJson('/api/search/text',{...payload,query:q});
+  }else if(window.DemoMode&&DemoMode.enabled){
+   const demoBody={sensors:SENSORS.filter(s=>S.sensors[s.id]).map(s=>s.id),top_k:S.topK,date_from:S.from||null,date_to:S.to||null,
+    region:S.region,max_cloud:S.cloud,min_similarity:S.minSim,query:q};
+   response=await DemoMode.search('text',demoBody);
+  }else{
+   response=await apiJson('/api/search/text',{...payload,query:q});
+  }
   S.results=(response.results||[]).map((r,i)=>{
-   const sensor=SENSORS.find(s=>s.id===String(r.sensor&&r.sensor.id||'').toLowerCase())||
-    SENSORS.find(s=>s.tag===String(r.sensor&&r.sensor.tag||'').toLowerCase())||{};
    return {...r,_api:true,_rank:r.rank||i+1,date:r.date?new Date(r.date):null,
-    sensor:{...sensor,...r.sensor},thumbnail_url:apiAsset(r.thumbnail_url),
+    sensor:normalizeSensor(r.sensor),thumbnail_url:apiAsset(r.thumbnail_url),_demo:response.query_type==='demo-prepared',
     region:r.region||'Local archive'};
   });
   S.searchWarnings=response.warnings||[];S.searchTimings=response.timings||{};
@@ -229,7 +329,11 @@ async function runSearch(){
   S.searchError=apiError(error);S.results=[];renderResults(label);
   document.getElementById('progSteps').innerHTML='<div class="tip" role="alert">'+escapeHtml(S.searchError)+'</div>';
   toast(S.searchError,'error');
- }finally{S.running=false;btn.disabled=false;btn.innerHTML=RUN_HTML}
+ }finally{
+  S.running=false;
+  if(btn){btn.disabled=false;updateRunButtonState()}
+  if(imgBtn)imgBtn.disabled=!S.file;
+ }
 }
 
 function escapeHtml(value){const node=document.createElement('span');node.textContent=String(value??'');return node.innerHTML}
@@ -367,7 +471,7 @@ function viewRes(i){
   '<div><div class="tk">Sensor</div><div class="tv" style="color:'+r.sensor.col+'">'+r.sensor.name+' · '+r.sensor.gsd+'</div></div>'+
   '<div><div class="tk">Acquired</div><div class="tv">'+(r.date&&!Number.isNaN(r.date.getTime())?r.date.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}):'Unavailable')+'</div></div>'+
   '<div><div class="tk">Location</div><div class="tv">'+(Number.isFinite(r.lat)&&Number.isFinite(r.lng)?Math.abs(r.lat).toFixed(4)+'°'+(r.lat>=0?'N':'S')+' '+Math.abs(r.lng).toFixed(4)+'°'+(r.lng>=0?'E':'W'):'Unavailable')+'</div></div>'+
-  '<div><div class="tk">Similarity</div><div class="tv" style="color:var(--cyan-d)">'+r.sim+' · retrieval similarity, not confidence</div></div>'+
+  '<div><div class="tk">'+(r._demo?'Prepared demo rank':'Similarity')+'</div><div class="tv" style="color:var(--cyan-d)">'+(r._demo?'DEMO SIMULATED · not RemoteCLIP score':r.sim+' · retrieval similarity, not confidence')+'</div></div>'+
   '<div><div class="tk">Cloud Cover</div><div class="tv">'+(Number.isFinite(r.cloud)?r.cloud+'%':'Unknown')+'</div></div>';
  document.getElementById('tileOverlay').classList.remove('hidden')}
 
@@ -375,11 +479,14 @@ function closeTile(){document.getElementById('tileOverlay').classList.add('hidde
 
 function sendToAnalysis(i){
  const r=S.results[i];if(!r)return;
+ if(r._demo&&window.DemoMode&&DemoMode.enabled){DemoMode.openInvestigation(r);return}
  App.staged=r;
  addFeed('<span class="tag c">STAGE</span><b>Analyst 01</b> staged scene '+r.id+' · '+r.region+' for multi-temporal analysis');
  if(!Number.isFinite(r.lat)||!Number.isFinite(r.lng)){toast('This tile has no geographic coordinates; it cannot seed an AOI query','error');return}
  toast('Tile location staged. Query the local scene catalog for real observations.');
  go('scene')}
+
+function showDemoOnMap(i){const r=S.results[i];if(!r)return;App.staged=r;window.AvlokanMaps?.scene?.setSelectedResult?.(r);go('scene')}
 
 function sendToAnalysisFromTile(){const i=curTile;closeTile();if(i!=null)sendToAnalysis(i)}
 
@@ -387,7 +494,7 @@ function pushRecent(label){
  S.recent.unshift({
   q:S.mode==='text'?document.getElementById('qText').value.trim():label,
   mode:S.mode,n:S.results.length,t:istTime(),
-  img:S.mode==='image'?S.img:null});
+  img:S.mode==='image'?S.img:null,scene:S.mode==='image'?S.demoScene:null});
  if(S.recent.length>6)S.recent.pop();
  renderRecent()}
 
@@ -404,6 +511,7 @@ function rerunRecent(i){
  const r=S.recent[i];if(!r)return;
  setQMode(r.mode);
  if(r.mode==='text')fillQ(r.q);
+ else if(window.DemoMode&&DemoMode.enabled&&r.scene){selectDemoImage()}
  else {toast('Select the image file again to repeat image search');return}
  runSearch()}
 
@@ -429,3 +537,70 @@ function injectTileLightbox(){
   </div>
  </div>`;
  document.body.appendChild(o)}
+
+
+async function refreshIndexingStatus() {
+ try {
+  const res = window.DemoMode?.getIndexingStatus ? await DemoMode.getIndexingStatus() : await apiRequest('/api/demo/indexing/status');
+  const countEl = document.getElementById('idxCountDisplay');
+  const noticeEl = document.getElementById('idxResultNotice');
+  const btn = document.getElementById('btnIngestScene');
+  const badge = document.getElementById('idxBadge');
+  if (countEl) countEl.textContent = `${res.indexed_count} scenes (${res.catalog_count} catalog tiles)`;
+  if (res.staged_scene && res.staged_scene.is_indexed) {
+   if (badge) { badge.textContent = 'INGESTED'; badge.className = 'sensor-badge available'; }
+   if (noticeEl) noticeEl.innerHTML = `<span style="color:var(--green-d)">✓ Scene <b>${res.staged_scene.tile_id}</b> is indexed and searchable in FAISS.</span>`;
+   if (btn) btn.disabled = true;
+  } else {
+   if (badge) { badge.textContent = 'READY'; badge.className = 'sensor-badge fused'; }
+   if (noticeEl) noticeEl.innerHTML = `<span>Staged tile ready for incremental embedding &amp; ingestion.</span>`;
+   if (btn) btn.disabled = false;
+  }
+ } catch (e) {
+  console.warn('Index status refresh failed:', e);
+ }
+}
+
+async function triggerIncrementalIngest() {
+ const btn = document.getElementById('btnIngestScene');
+ if (btn) { btn.disabled = true; btn.textContent = 'Ingesting...'; }
+ try {
+  const res = window.DemoMode?.incrementalIngest ? await DemoMode.incrementalIngest() : await apiJson('/api/demo/indexing/incremental-ingest', {});
+  toast(`Ingested scene ${res.tile_id} in ${res.duration_seconds}s (Index count: ${res.indexed_count_before} → ${res.indexed_count_after})`, 'success');
+  const noticeEl = document.getElementById('idxResultNotice');
+  if (noticeEl) {
+   noticeEl.innerHTML = `<div style="background:rgba(124,154,120,.15);border:1px solid var(--green-d);padding:6px 8px;border-radius:6px;margin-top:6px">
+    <b>Incremental Ingest Complete (No Rebuild)</b><br>
+    • Before: Indexed scenes: <b>${res.indexed_count_before}</b><br>
+    • Ingested: <b>${res.tile_id}</b> (${res.embedding_dim}-d)<br>
+    • After: Indexed scenes: <b>${res.indexed_count_after}</b><br>
+    • Latency: <b>${res.duration_seconds}s</b> · FAISS IndexIDMap2 vector appended
+   </div>`;
+  }
+  await refreshIndexingStatus();
+ } catch (e) {
+  toast(apiError(e), 'error');
+  if (btn) { btn.disabled = false; btn.textContent = '+ Add Scene to Index'; }
+ }
+}
+
+async function triggerIndexReset() {
+ try {
+  const res = window.DemoMode?.resetIndexing ? await DemoMode.resetIndexing() : await apiJson('/api/demo/indexing/reset', {});
+  toast(`Index reset to baseline (${res.indexed_count} scenes)`, 'info');
+  const noticeEl = document.getElementById('idxResultNotice');
+  if (noticeEl) noticeEl.innerHTML = 'Index restored to baseline 4 scenes.';
+  await refreshIndexingStatus();
+ } catch (e) {
+  toast(apiError(e), 'error');
+ }
+}
+
+function searchIngestedScene() {
+ const qInput = document.getElementById('qText');
+ if (qInput) {
+  qInput.value = 'quarry excavation river bend';
+ }
+ setQMode('text');
+ runSearch();
+}

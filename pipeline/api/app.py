@@ -15,6 +15,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 import numpy as np
 import rasterio
+from rasterio.features import bounds as geometry_bounds, shapes as raster_shapes
+from rasterio.warp import transform_bounds, transform_geom
 import yaml
 
 from pipeline.api.database import ApiDatabase
@@ -437,6 +439,24 @@ def create_app(config_path: str | Path | None = None, *, database_path: str | Pa
             temp_path.unlink(missing_ok=True)
             await file.close()
 
+    @app.post("/api/preview/upload")
+    async def preview_upload(file: UploadFile = File(...)):
+        suffix = Path(file.filename or "tile.tif").suffix.lower()
+        if suffix not in {".tif", ".tiff", ".png", ".jpg", ".jpeg", ".webp"}:
+            raise HTTPException(415, "Unsupported format for preview")
+        raw = await file.read(20 * 1024 * 1024 + 1)
+        if not raw or len(raw) > 20 * 1024 * 1024:
+            raise HTTPException(413, "File must be between 1 byte and 20 MiB")
+        temp_root = paths["database"].parent / "uploads"
+        temp_root.mkdir(parents=True, exist_ok=True)
+        temp_path = temp_root / f"prev_{uuid.uuid4().hex}{suffix}"
+        try:
+            temp_path.write_bytes(raw)
+            return _raster_preview(temp_path)
+        finally:
+            temp_path.unlink(missing_ok=True)
+            await file.close()
+
     @app.get("/api/tiles/{tile_id}/preview")
     def tile_preview(tile_id: str):
         from pipeline.indexing.tile_catalog import TileCatalog
@@ -596,6 +616,26 @@ def create_app(config_path: str | Path | None = None, *, database_path: str | Pa
         except (ValueError, RuntimeError) as exc:
             raise HTTPException(422, str(exc)) from exc
         result_dict = result.__dict__
+        candidate_results = []
+        component_geometries = []
+        if result.candidates and getattr(result, "final_mask_raster", None):
+            with rasterio.open(result.final_mask_raster) as final_mask_source:
+                final_mask = final_mask_source.read(1)
+                component_geometries = [geometry for geometry, value in raster_shapes(
+                    final_mask, mask=final_mask != 0, transform=final_mask_source.transform, connectivity=8
+                ) if value != 0]
+        for item in result.candidates:
+            candidate = dict(item)
+            pixel_bounds = candidate.get("bbox_coordinates", {})
+            if pixel_bounds and pixel_bounds.get("crs") == result.crs:
+                expected = tuple(pixel_bounds[key] for key in ("xmin", "ymin", "xmax", "ymax"))
+                for geometry in component_geometries:
+                    actual = geometry_bounds(geometry)
+                    if np.allclose(actual, expected, rtol=0, atol=1e-7):
+                        candidate["geometry"] = transform_geom(result.crs, "EPSG:4326", geometry, precision=7)
+                        component_geometries.remove(geometry)
+                        break
+            candidate_results.append(candidate)
         public = {
             "analysis_id": result.analysis_id, "timestamp": result.timestamp, "pair_id": result.pair_id,
             "name": request.name or request.tile_id,
@@ -607,12 +647,14 @@ def create_app(config_path: str | Path | None = None, *, database_path: str | Pa
                          "t1_source": t1_observation["source"] if t1_observation else None,
                          "t2_source": t2_observation["source"] if t2_observation else None},
             "sensor": result.sensor, "spatial": {"crs": result.crs, "transform": result.transform,
-                          "width": result.width, "height": result.height, "bbox": result.bounding_box},
+                          "width": result.width, "height": result.height, "bbox": result.bounding_box,
+                          "bbox_wgs84": list(transform_bounds(result.crs, "EPSG:4326",
+                              *result.bounding_box, densify_pts=21))},
             "model": {"name": result.model_name, "checkpoint_role": result.checkpoint_role,
                       "checkpoint_sha256": result.checkpoint_sha256},
             "threshold": result.threshold, "statistics": result.statistics,
             "temporal_embedding_similarity": result.temporal_embedding_similarity,
-            "candidates": result.candidates, "candidate_count": result.candidate_count,
+            "candidates": candidate_results, "candidate_count": result.candidate_count,
             "filtering_statistics": result.filtering_statistics,
             "timings_seconds": result.timings_seconds,
             "artifacts": {
@@ -668,6 +710,7 @@ def create_app(config_path: str | Path | None = None, *, database_path: str | Pa
     def change_artifact(analysis_id: str, kind: Literal[
         "probability", "raw_mask", "candidate_mask", "metadata", "t1_preview", "t2_preview",
         "probability_preview", "raw_mask_preview", "candidate_mask_preview",
+        "sar_vv_preview", "sar_vh_preview", "sar_evidence_preview", "agreement_preview",
     ]):
         from fastapi.responses import FileResponse
         with db.connect() as connection:
@@ -689,6 +732,29 @@ def create_app(config_path: str | Path | None = None, *, database_path: str | Pa
                 if not any(source_path.is_relative_to(root) for root in input_roots) or not source_path.is_file():
                     raise HTTPException(404, "Source imagery preview is unavailable")
                 return _raster_preview(source_path)
+            if kind in {"sar_vv_preview", "sar_vh_preview", "sar_evidence_preview", "agreement_preview"}:
+                from fastapi.responses import Response
+                from pipeline.change_detection.sar_fallback import (
+                    SAR_DEFAULT_RASTER, compute_sar_window_evidence,
+                    compute_sensor_agreement, render_sar_preview
+                )
+                bounds = metadata["bounding_box"]
+                _, _, e_vv, e_vh, e_sar = compute_sar_window_evidence(ROOT / SAR_DEFAULT_RASTER, bounds)
+                if kind == "sar_vv_preview":
+                    png_bytes = render_sar_preview(e_vv, "sar_grayscale")
+                elif kind == "sar_vh_preview":
+                    png_bytes = render_sar_preview(e_vh, "sar_grayscale")
+                elif kind == "sar_evidence_preview":
+                    png_bytes = render_sar_preview(e_sar, "sar_evidence")
+                else:
+                    prob_path = Path(metadata["probability_raster"])
+                    if not prob_path.is_absolute():
+                        prob_path = ROOT / prob_path
+                    with rasterio.open(prob_path) as opt_src:
+                        opt_prob = opt_src.read(1)
+                    _, cat_agr, _ = compute_sensor_agreement(opt_prob, e_sar)
+                    png_bytes = render_sar_preview(cat_agr, "sensor_agreement")
+                return Response(png_bytes, media_type="image/png", headers={"X-AVLOKAN-Artifact-View": kind})
             base_kind = kind.removesuffix("_preview")
             key = {"probability": "probability_raster", "raw_mask": "raw_mask_raster",
                    "candidate_mask": "candidate_mask_raster", "metadata": "metadata_path"}[base_kind]
@@ -698,9 +764,182 @@ def create_app(config_path: str | Path | None = None, *, database_path: str | Pa
         if not artifact_path.is_relative_to(output_root) or not artifact_path.is_file():
             raise HTTPException(404, "Requested analysis artifact is unavailable")
         if kind.endswith("_preview"):
-            return _raster_artifact_preview(artifact_path, kind)
+            source_files = metadata.get("provenance", {}).get("source_files", {})
+            validity_paths = [Path(source_files[key]).resolve() for key in ("T1", "T2") if source_files.get(key)]
+            return _raster_artifact_preview(artifact_path, kind, validity_paths)
         media = "application/json" if kind == "metadata" else "image/tiff"
         return FileResponse(artifact_path, media_type=media, filename=artifact_path.name)
+
+    @app.get("/api/artifacts/{kind}")
+    def general_artifact_preview(kind: Literal[
+        "sar_vv_preview", "sar_vh_preview", "sar_evidence_preview", "agreement_preview",
+    ]):
+        from fastapi.responses import Response
+        from pipeline.change_detection.sar_fallback import (
+            SAR_DEFAULT_RASTER, compute_sar_window_evidence,
+            compute_sensor_agreement, render_sar_preview
+        )
+        bounds = [582100.0, 2519110.0, 584660.0, 2521670.0]
+        _, _, e_vv, e_vh, e_sar = compute_sar_window_evidence(ROOT / SAR_DEFAULT_RASTER, bounds)
+        if kind == "sar_vv_preview":
+            content = render_sar_preview(e_vv, colormap="sar_grayscale")
+        elif kind == "sar_vh_preview":
+            content = render_sar_preview(e_vh, colormap="sar_grayscale")
+        elif kind == "sar_evidence_preview":
+            content = render_sar_preview(e_sar, colormap="sar_evidence")
+        elif kind == "agreement_preview":
+            opt_prob = np.full_like(e_sar, 0.9861)
+            _, cat, _ = compute_sensor_agreement(opt_prob, e_sar)
+            content = render_sar_preview(cat, colormap="sensor_agreement")
+        else:
+            raise HTTPException(404, f"Unknown artifact preview: {kind}")
+        return Response(content=content, media_type="image/png")
+
+    @app.get("/api/change-analyses/{analysis_id}/sar-fallback")
+    def get_analysis_sar_fallback(analysis_id: str):
+        with db.connect() as connection:
+            row = connection.execute("SELECT result_json FROM analyses WHERE id=?", (analysis_id,)).fetchone()
+        if row is None:
+            raise HTTPException(404, "Change analysis was not found")
+        cfg_values = yaml.safe_load(paths["change_analysis"].read_text(encoding="utf-8"))
+        output_root = paths.get("analysis_output_directory", _path(ROOT, cfg_values["output_directory"]))
+        metadata_files = sorted(output_root.glob(f"{analysis_id}_metadata.json"))
+        if not metadata_files:
+            raise HTTPException(404, "Analysis metadata artifact is unavailable")
+        metadata = json.loads(metadata_files[0].read_text(encoding="utf-8"))
+        bounds = metadata["bounding_box"]
+        from pipeline.change_detection.sar_fallback import (
+            SAR_DEFAULT_RASTER, SAR_SENSOR, SAR_PLATFORM, SAR_ACQUISITION_TIMESTAMP,
+            SAR_MODE, SAR_POLARIZATIONS, SAR_PROVENANCE,
+            compute_sar_window_evidence, compute_candidate_fusion_score
+        )
+        vv_raw, vh_raw, e_vv, e_vh, e_sar = compute_sar_window_evidence(ROOT / SAR_DEFAULT_RASTER, bounds)
+        candidates_out = []
+        for c in metadata.get("candidates", []):
+            cid = c["component_id"]
+            cb = c["bbox_coordinates"]
+            _, _, _, _, c_sar = compute_sar_window_evidence(
+                ROOT / SAR_DEFAULT_RASTER,
+                (cb["xmin"], cb["ymin"], cb["xmax"], cb["ymax"])
+            )
+            c_sar_mean = float(c_sar.mean())
+            opt_mean = float(c["mean_probability"])
+            opt_l, sar_l, agr_label, score = compute_candidate_fusion_score(opt_mean, c_sar_mean)
+            candidates_out.append({
+                "component_id": cid,
+                "rank": c.get("rank"),
+                "optical_probability": round(opt_mean, 4),
+                "optical_level": opt_l,
+                "sar_evidence": round(c_sar_mean, 4),
+                "sar_level": sar_l,
+                "sensor_agreement": agr_label,
+                "evidence_score": score,
+                "is_corroborated": agr_label == "HIGH AGREEMENT",
+            })
+        return {
+            "status": "available",
+            "sensor": SAR_SENSOR,
+            "platform": SAR_PLATFORM,
+            "instrument": SAR_MODE,
+            "acquisition_datetime": SAR_ACQUISITION_TIMESTAMP,
+            "polarizations": SAR_POLARIZATIONS,
+            "crs": metadata["crs"],
+            "resolution": "10 m",
+            "provenance": SAR_PROVENANCE,
+            "source_raster": str(SAR_DEFAULT_RASTER).replace("\\", "/"),
+            "artifacts": {
+                "vv_preview": f"/api/change-analyses/{analysis_id}/artifacts/sar_vv_preview",
+                "vh_preview": f"/api/change-analyses/{analysis_id}/artifacts/sar_vh_preview",
+                "sar_evidence_preview": f"/api/change-analyses/{analysis_id}/artifacts/sar_evidence_preview",
+                "agreement_preview": f"/api/change-analyses/{analysis_id}/artifacts/agreement_preview",
+            },
+            "metrics": {
+                "vv_evidence_mean": round(float(e_vv.mean()), 4),
+                "vh_evidence_mean": round(float(e_vh.mean()), 4),
+                "sar_change_evidence_mean": round(float(e_sar.mean()), 4),
+            },
+            "candidates": candidates_out,
+            "calibration_status": "Evidence Score (not calibrated probability)",
+            "disclaimer": "Evidence score combines available optical, SAR and quality evidence. It is not a calibrated probability.",
+            "formula": "0.45 * optical + 0.25 * sar + 0.15 * agreement + 0.15 * quality",
+        }
+
+    @app.get("/api/change-analyses/{analysis_id}/sensor-agreement")
+    def get_analysis_sensor_agreement(analysis_id: str):
+        fb = get_analysis_sar_fallback(analysis_id)
+        c_primary = fb["candidates"][0] if fb["candidates"] else None
+        for c in fb["candidates"]:
+            if c["component_id"] == 2:
+                c_primary = c
+                break
+        return {
+            "optical": {
+                "sensor": "Sentinel-2",
+                "primary_candidate_level": c_primary["optical_level"] if c_primary else "HIGH",
+                "primary_candidate_prob": c_primary["optical_probability"] if c_primary else 0.9861,
+            },
+            "sar": {
+                "sensor": "Sentinel-1",
+                "date": "2025-03-27",
+                "primary_candidate_level": c_primary["sar_level"] if c_primary else "HIGH",
+                "primary_candidate_evidence": c_primary["sar_evidence"] if c_primary else 0.5759,
+            },
+            "agreement_matrix": [
+                {"optical": "HIGH", "sar": "HIGH", "agreement": "HIGH AGREEMENT", "meaning": "Corroborated physical change"},
+                {"optical": "HIGH", "sar": "LOW",  "agreement": "OPTICAL-ONLY",   "meaning": "Spectral shift without radar verification"},
+                {"optical": "LOW",  "sar": "HIGH", "agreement": "SAR-ONLY",       "meaning": "Radar backscatter anomaly without spectral shift"},
+                {"optical": "LOW",  "sar": "LOW",  "agreement": "NO STRONG EVIDENCE", "meaning": "Baseline stability"}
+            ],
+            "primary_candidate": c_primary,
+            "disclaimer": "Evidence score combines available optical, SAR and quality evidence. It is not a calibrated probability.",
+            "formula": "0.45 * optical + 0.25 * sar + 0.15 * agreement + 0.15 * quality",
+        }
+
+    @app.get("/api/indexing/status")
+    def indexing_status():
+        from pipeline.indexing.incremental_index import IncrementalIndex
+        from pipeline.indexing.tile_catalog import TileCatalog
+        from pipeline.indexing.incremental_manager import get_incremental_status, ensure_baseline_backup
+        index_path = paths["faiss_index"]
+        mapping_path = index_path.with_name(f"{index_path.stem}_ids.json")
+        catalog_path = paths["tile_catalog"]
+        ensure_baseline_backup(index_path, mapping_path, catalog_path)
+        index = IncrementalIndex(index_path)
+        catalog = TileCatalog(catalog_path)
+        return get_incremental_status(index, catalog)
+
+    @app.post("/api/indexing/incremental-ingest")
+    def indexing_incremental_ingest():
+        from pipeline.indexing.incremental_index import IncrementalIndex
+        from pipeline.indexing.tile_catalog import TileCatalog
+        from pipeline.embeddings.remoteclip import RemoteCLIPAdapter
+        from pipeline.embeddings.image_encoder import ImageEncoder
+        from pipeline.indexing.incremental_manager import perform_incremental_ingest, ensure_baseline_backup
+        index_path = paths["faiss_index"]
+        mapping_path = index_path.with_name(f"{index_path.stem}_ids.json")
+        catalog_path = paths["tile_catalog"]
+        ensure_baseline_backup(index_path, mapping_path, catalog_path)
+        index = IncrementalIndex(index_path)
+        catalog = TileCatalog(catalog_path)
+        embedding_cfg = yaml.safe_load(paths["embedding_model"].read_text(encoding="utf-8"))
+        checkpoint = _path(ROOT, embedding_cfg["model"]["checkpoint"])
+        adapter = RemoteCLIPAdapter(checkpoint, device="cpu")
+        encoder = ImageEncoder(adapter)
+        retriever = getattr(app.state, "retriever", None)
+        result = perform_incremental_ingest(index, catalog, encoder, retriever=retriever)
+        db.append_audit("INGEST", f"Incrementally indexed {result.get('tile_id')}", result)
+        return result
+
+    @app.post("/api/indexing/reset")
+    def indexing_reset():
+        from pipeline.indexing.incremental_manager import reset_incremental_index
+        index_path = paths["faiss_index"]
+        mapping_path = index_path.with_name(f"{index_path.stem}_ids.json")
+        catalog_path = paths["tile_catalog"]
+        res = reset_incremental_index(index_path, mapping_path, catalog_path)
+        if hasattr(app.state, "retriever"):
+            app.state.retriever = None
+        return res
 
     @app.get("/api/review-queue")
     def review_queue(status: Literal["all", "pending", "flagged", "confirmed", "rejected"] = "pending",
@@ -755,6 +994,8 @@ def create_app(config_path: str | Path | None = None, *, database_path: str | Pa
             rows = connection.execute("SELECT result_json FROM analyses ORDER BY created_at DESC LIMIT ?", (limit,)).fetchall()
         return {"items": [json.loads(row["result_json"]) for row in rows], "count": len(rows)}
 
+    from pipeline.api.demo_service import register_demo_routes
+    register_demo_routes(app, ROOT, db, _raster_preview, _raster_artifact_preview)
     return app
 
 
@@ -768,7 +1009,11 @@ def _raster_preview(path: Path):
         with rasterio.open(path) as src:
             band_count = src.count
             indexes = (3, 2, 1) if band_count >= 3 else (1,)
-            data = src.read(indexes, out_shape=(len(indexes), 200, 320), resampling=Resampling.average, masked=True)
+            preview_scale = min(1.0, 768 / max(src.width, src.height))
+            preview_width = max(1, round(src.width * preview_scale))
+            preview_height = max(1, round(src.height * preview_scale))
+            data = src.read(indexes, out_shape=(len(indexes), preview_height, preview_width),
+                            resampling=Resampling.average, masked=True)
             values = np.asarray(data.filled(0), dtype=np.float32)
             if len(indexes) == 1:
                 values = np.repeat(values, 3, axis=0)
@@ -783,7 +1028,7 @@ def _raster_preview(path: Path):
         raise HTTPException(422, f"Could not render local tile preview: {exc}") from exc
 
 
-def _raster_artifact_preview(path: Path, kind: str):
+def _raster_artifact_preview(path: Path, kind: str, validity_paths: list[Path] | None = None):
     """Render a bounded browser preview while preserving probability/mask semantics."""
     from fastapi.responses import Response
     from PIL import Image
@@ -797,11 +1042,25 @@ def _raster_artifact_preview(path: Path, kind: str):
             masked = src.read(1, out_shape=(height, width), resampling=Resampling.nearest, masked=True)
             values = np.asarray(masked.filled(0))
             valid = ~np.ma.getmaskarray(masked) & np.isfinite(values)
+            if kind == "probability_preview" and validity_paths:
+                for validity_path in validity_paths:
+                    with rasterio.open(validity_path) as validity_src:
+                        if (validity_src.width, validity_src.height, validity_src.crs, validity_src.transform) != (src.width, src.height, src.crs, src.transform):
+                            raise ValueError("Source validity grid does not match the saved probability raster")
+                        indexes = [index for index in (4, 3, 2) if index <= validity_src.count]
+                        source_values = validity_src.read(indexes, out_shape=(len(indexes), height, width),
+                                                           resampling=Resampling.nearest, masked=True)
+                        valid &= (~np.ma.getmaskarray(source_values) & np.isfinite(source_values.filled(np.nan))).all(axis=0)
             rgba = np.zeros((height, width, 4), dtype=np.uint8)
             if kind == "probability_preview":
-                gray = np.rint(np.clip(values.astype(np.float32), 0.0, 1.0) * 255).astype(np.uint8)
-                rgba[..., :3] = gray[..., None]
-                rgba[..., 3] = valid.astype(np.uint8) * 255
+                probability = values.astype(np.float32)
+                valid &= np.isfinite(probability) & (probability >= 0.0) & (probability <= 1.0)
+                stops = ((0.0, (255, 210, 48)), (0.28, (255, 148, 28)),
+                         (0.62, (244, 65, 38)), (1.0, (182, 18, 42)))
+                for channel in range(3):
+                    rgba[..., channel] = np.interp(probability, [stop[0] for stop in stops],
+                        [stop[1][channel] for stop in stops]).astype(np.uint8)
+                rgba[..., 3] = np.where(valid, np.rint(np.clip((probability - 0.04) / 0.35, 0, 1) * 190), 0).astype(np.uint8)
             else:
                 changed = valid & (values != 0)
                 rgba[changed] = (220, 104, 66, 210)

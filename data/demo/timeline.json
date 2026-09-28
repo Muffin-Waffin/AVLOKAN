@@ -1,0 +1,6 @@
+{
+  "observations":[
+    {"date":"2025-03-24","role":"T1 · earlier observation","id":"S2B_MSIL2A_20250324T052649_N0511_R105_T43QEF_20250324T074123","scene_id":"S2B_MSIL2A_20250324T052649_N0511_R105_T43QEF_20250324T074123","sensor":"Sentinel-2","path":"data/processed/phase6_validation/s2_20250324_512.tif","preview":"/api/demo/artifacts/t2_preview","bbox":[75.79966202098623,22.754106944804505,75.8498135819418,22.800612416259163],"real":true},
+    {"date":"2025-03-29","role":"T2 · later observation","id":"S2C_MSIL2A_20250329T052841_N0511_R105_T43QEF_20250329T105014","scene_id":"S2C_MSIL2A_20250329T052841_N0511_R105_T43QEF_20250329T105014","sensor":"Sentinel-2","path":"data/processed/phase2_validation/s2_reflectance_512.tif","preview":"/api/demo/artifacts/t1_preview","bbox":[75.79966202098623,22.754106944804505,75.8498135819418,22.800612416259163],"real":true}
+  ]
+}
